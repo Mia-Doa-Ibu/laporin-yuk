@@ -1,0 +1,593 @@
+{
+  "info": {
+    "_postman_id": "6283f24c-ae38-4155-94a4-207bb00d3672",
+    "name": "API pengaduan",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "34444082"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "RegisterPelapor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"warga1@mail.com\",\n  \"password\": \"password123\",\n  \"nama_lengkap\": \"Hambali Subastian\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register/pelapor",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register",
+                "pelapor"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "RegisterTeamBranch",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"warga1@mail.com\",\n  \"password\": \"password123\",\n  \"nama_lengkap\": \"Hambali Subastian\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register/pelapor",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register",
+                "pelapor"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"warga1@mail.com\",\n  \"password\": \"password123\",\n  \"nama_lengkap\": \"Hambali Subastian\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register/pelapor",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register",
+                "pelapor"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Kecamatan",
+      "item": [
+        {
+          "name": "Get All Kecamatan (Pagination & Search)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kecamatan?page=1&limit=10&search=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kecamatan"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Kecamatan By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/kecamatan/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kecamatan",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "MASUKKAN_UUID_KECAMATAN"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Kecamatan (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama_kecamatan\": \"Teluknaga\",\n  \"kabupaten\": \"Tangerang\",\n  \"provinsi\": \"Banten\"\n}",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/kecamatan",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kecamatan"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Kecamatan (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama_kecamatan\": \"Teluknaga Update\",\n  \"kabupaten\": \"Tangerang\",\n  \"provinsi\": \"Banten\"\n}",
+              "options": {
+                "raw": {
+                  "language": "text"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/kecamatan/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kecamatan",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "MASUKKAN_UUID_KECAMATAN"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Kecamatan (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/kecamatan/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "kecamatan",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "MASUKKAN_UUID_KECAMATAN"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Laporan",
+      "item": [
+        {
+          "name": "2. Get All Laporan (With Filter & Pagination)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/laporan?page=1&limit=10&search=&status=pending",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "laporan"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Get Laporan By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/laporan/{{laporan_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "laporan",
+                "{{laporan_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5. Delete Laporan",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/laporan/{{laporan_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "laporan",
+                "{{laporan_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. Update Status Laporan",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"valid\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/laporan/{{laporan_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "laporan",
+                "{{laporan_id}}",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "1. Create Laporan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_kecamatan\": \"uuid-kecamatan-anda\",\n  \"judul\": \"Laporan Jalan Rusak\",\n  \"deskripsi\": \"Jalan berlubang di depan jalan utama.\",\n  \"foto_url\": \"https://example.com/foto.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/laporan",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "laporan"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Team Branch",
+      "item": [
+        {
+          "name": "Get All Team Branch",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/team-branch?page=1&limit=10&search=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "team-branch"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Team Branch (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_verified\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/team-branch/:id/verify",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "team-branch",
+                ":id",
+                "verify"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID_TEAM_BRANCH"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Pelapor",
+      "item": [
+        {
+          "name": "Get All Pelapor (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/pelapor?page=1&limit=10&search=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pelapor"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Pelapor",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama_lengkap\": \"Nama Baru Update\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/pelapor/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "pelapor",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID_PELAPOR"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
