@@ -6,6 +6,7 @@ import laporanRoutes from './routes/laporanRoutes.js'
 import  kecamatanRoutes from './routes/kecamatanRoutes.js'
 import pelaporRoutes from './routes/pelaporRoutes.js'
 import teamBranchRoutes from './routes/teamBranchRoutes.js'
+import anggotaRoutes from './routes/anggotaRoutes.js'
 const app = express()
 
 app.use(express.json())
@@ -19,6 +20,7 @@ app.use('/api/laporan', laporanRoutes)
 // app.use('/api/admin', adminRoutes)
 app.use('/api/pelapor', pelaporRoutes)
 app.use('/api/team-branch', teamBranchRoutes)
+app.use('/api/anggota', anggotaRoutes)
 const PORT = process.env.PORT || 3000
 app.listen(PORT, () => {
   console.log(`Server Express berjalan di port ${PORT}`)
