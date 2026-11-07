@@ -588,6 +588,178 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Anggota",
+      "item": [
+        {
+          "name": "1. Tambah Anggota (POST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nik\": \"3603123456780001\",\n  \"nama\": \"Ahmad Subagja\",\n  \"gender\": \"Laki-laki\",\n  \"umur\": 28,\n  \"role\": \"ketua\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/anggota/",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "anggota",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Get All Anggota (GET)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/anggota/?page=1&limit=10&search=&role=ketua",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "anggota",
+                ""
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "role",
+                  "value": "ketua"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "3. Get Anggota By ID (GET)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/anggota/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "anggota",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID_ANGGOTA_DISINI"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "4. Update Anggota (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nama\": \"Ahmad Subagja Update\",\n  \"gender\": \"Laki-laki\",\n  \"umur\": 29,\n  \"role\": \"ketua\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/anggota/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "anggota",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID_ANGGOTA_DISINI"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "5. Delete Anggota (DELETE)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/anggota/:id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "anggota",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "UUID_ANGGOTA_DISINI"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ]
 }
