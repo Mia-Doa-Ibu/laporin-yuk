@@ -4,7 +4,8 @@ import {
   getTeamBranchById, 
   updateTeamBranch, 
   verifyTeamBranch, 
-  deleteTeamBranch 
+  deleteTeamBranch ,
+  addAnggotaByTeam
 } from '../controllers/teamBranchController.js'
 import { requireAuth } from '../middlewares/authMiddleware.js'
 import { requireRole } from '../middlewares/roleMiddleware.js'
@@ -18,5 +19,5 @@ router.get('/:id', getTeamBranchById)
 router.put('/:id', requireRole(['team_branch', 'admin']), updateTeamBranch)
 router.patch('/:id/verify', requireRole(['admin']), verifyTeamBranch) 
 router.delete('/:id', requireRole(['admin']), deleteTeamBranch)
-
+router.post('/anggota', requireRole(['team_branch']), addAnggotaByTeam)
 export default router

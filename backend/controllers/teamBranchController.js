@@ -1,5 +1,5 @@
 import { supabaseAdmin } from '../config/supabase.js'
-
+const ALLOWED_MEMBER_ROLES = ['ketua', 'anggota']
 export const getAllTeamBranch = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1
@@ -16,6 +16,7 @@ export const getAllTeamBranch = async (req, res) => {
         id,
         user_id,
         nama_tim,
+        nomor_ketua
         is_verified,
         created_at,
         kecamatan (id, nama_kecamatan, kabupaten, provinsi)
@@ -168,6 +169,55 @@ export const deleteTeamBranch = async (req, res) => {
     await supabaseAdmin.auth.admin.deleteUser(team.user_id)
 
     return res.status(200).json({ message: 'Team branch berhasil dihapus.' })
+  } catch (err) {
+    return res.status(500).json({ error: err.message })
+  }
+}
+
+export const addAnggotaByTeam = async (req, res) => {
+  try {
+    const userId = req.user.id
+    const { nik, gender, umur, nama, role } = req.body
+
+    if (!nik || !gender || !umur || !nama) {
+      return res.status(400).json({ error: 'nik, gender, umur, dan nama wajib diisi.' })
+    }
+
+    
+
+    const memberRole = role || 'anggota'
+    if (!ALLOWED_MEMBER_ROLES.includes(memberRole)) {
+      return res.status(400).json({ error: 'Role anggota tidak valid. Pilih antara "ketua" atau "anggota".' })
+    }
+
+    const { data: teamData, error: teamErr } = await supabaseAdmin
+      .from('team_branch')
+      .select('id')
+      .eq('user_id', userId)
+      .single()
+
+    if (teamErr || !teamData) {
+      return res.status(404).json({ error: 'Data team branch untuk akun ini tidak ditemukan.' })
+    }
+
+    const { data, error } = await supabaseAdmin
+      .from('anggota')
+      .insert([{
+        nik,
+        id_team_branch: teamData.id,
+        gender,
+        umur,
+        nama,
+        role: memberRole
+      }])
+      .select()
+
+    if (error) return res.status(400).json({ error: error.message })
+
+    return res.status(201).json({
+      message: 'Anggota berhasil ditambahkan ke tim Anda.',
+      data: data[0]
+    })
   } catch (err) {
     return res.status(500).json({ error: err.message })
   }

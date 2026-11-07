@@ -3,12 +3,19 @@ import { supabase, supabaseAdmin } from '../config/supabase.js'
 const ALLOWED_ROLES = ['pelapor', 'team_branch', 'admin']
 
 export const register = async (req, res) => {
-  const { role, email, password, ...profileData } = req.body
+  const { role, email, password, confirm_password, ...profileData } = req.body
 
   if (!ALLOWED_ROLES.includes(role)) {
     return res.status(400).json({ error: 'Role pendaftaran tidak valid atau belum disertakan di JSON.' })
   }
 
+  if (!password || !confirm_password) {
+    return res.status(400).json({ error: 'Password dan konfirmasi password wajib diisi.' })
+  }
+
+  if (password !== confirm_password) {
+    return res.status(400).json({ error: 'Konfirmasi password tidak cocok dengan password.' })
+  }
   const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
     email,
     password,
@@ -42,6 +49,7 @@ export const register = async (req, res) => {
       user_id: userId,
       nama_tim: profileData.nama_tim,
       id_kecamatan: profileData.id_kecamatan,
+      nomor_ketua:profileData.nomor_ketua,
       is_verified: false
     }])
   }

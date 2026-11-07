@@ -13,6 +13,8 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use('/api/auth', authRoutes)
 app.use('/api/kecamatan', kecamatanRoutes)
+
+
 app.use('/api/laporan', laporanRoutes)
 // app.use('/api/admin', adminRoutes)
 app.use('/api/pelapor', pelaporRoutes)
