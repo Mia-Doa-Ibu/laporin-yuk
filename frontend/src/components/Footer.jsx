@@ -1,16 +1,17 @@
+import { Link } from "react-router-dom";
 import { FaInstagram, FaWhatsapp, FaEnvelope } from "react-icons/fa";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#09111e] text-white pt-16 pb-8 border-t border-gray-800">
+    <footer className="bg-[#0c1322] text-white pt-16 pb-8 border-t border-gray-800">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pb-12">
         <div className="space-y-4">
           <h4 className="text-lg font-black tracking-wider uppercase">
             LAPORIN YUK!
           </h4>
           <p className="text-gray-300 text-sm leading-relaxed">
-            Adalah platform pengaduan publik yang memudahkan warga melaporkan
-            fasilitas rusak, isu lingkungan, dan dugaan penyimpangan dana
+            platform pengaduan publik yang memudahkan warga melaporkan fasilitas
+            rusak, isu lingkungan, dan dugaan penyimpangan dana
           </p>
         </div>
 
@@ -20,19 +21,19 @@ export default function Footer() {
           </h4>
           <ul className="space-y-2 text-sm text-gray-300">
             <li>
-              <a href="/" className="hover:text-white transition-colors">
+              <Link to="/" className="hover:text-white transition-colors">
                 Beranda
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="/status" className="hover:text-white transition-colors">
-                Status
-              </a>
-            </li>
-            <li>
-              <a href="/laporan" className="hover:text-white transition-colors">
+              <Link to="/laporan" className="hover:text-white transition-colors">
                 Laporan
-              </a>
+              </Link>
+            </li>
+            <li>
+              <Link to="/status" className="hover:text-white transition-colors">
+                Status
+              </Link>
             </li>
           </ul>
         </div>
@@ -42,7 +43,7 @@ export default function Footer() {
             HUBUNGI KAMI
           </h4>
           <ul className="space-y-2 text-sm text-gray-300">
-            <li>Email : doaibu@gmail.com</li>
+            <li>Email : LAPORIN YUK@gmail.com</li>
             <li>Whatsapp : +6289663263212</li>
             <li>Whatsapp : +6289663263212</li>
             <li>Whatsapp : +6289663263212</li>
@@ -73,7 +74,7 @@ export default function Footer() {
               <FaWhatsapp className="w-5 h-5" />
             </a>
             <a
-              href="mailto:doaibu@gmail.com"
+              href="mailto:LAPORIN.YUK@gmail.com"
               aria-label="Email"
               className="p-2 border border-white rounded-full hover:bg-white hover:text-black transition-colors"
             >
@@ -84,7 +85,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-gray-800 pt-6 text-center text-xs text-gray-400">
-        © 2026 doa ibu. All rights reserved.
+        © 2026 LAPORIN YUK. All rights reserved.
       </div>
     </footer>
   );

@@ -1,6 +1,13 @@
+import { Link } from "react-router-dom";
 import { FaInstagram, FaWhatsapp, FaEnvelope } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+
+import imgHero from "../assets/1.png";
+import imgAbout from "../assets/2.png";
+import imgFasum from "../assets/3.png";
+import imgDana from "../assets/4.png";
+import imgLingkungan from "../assets/5.png";
 
 export default function LandingPage() {
   return (
@@ -24,21 +31,38 @@ export default function LandingPage() {
                 terkait secara cepat, transparan, dan terpantau hingga tuntas.
               </p>
               <div>
-                <a
-                  href="/buat-laporan"
+                <Link
+                  to="/laporan"
                   className="inline-block bg-[#0284c7] hover:bg-[#0369a1] text-white font-semibold px-8 py-3 rounded-lg shadow-sm transition-colors text-base"
                 >
                   kirim Laporan
-                </a>
+                </Link>
               </div>
             </div>
-            <div className="w-full h-80 lg:h-[420px] bg-gray-300 rounded-sm"></div>
+
+            <div className="relative flex items-center justify-center min-h-[380px] lg:min-h-[440px]">
+              <div className="absolute top-2 right-4 sm:right-12 w-24 h-24 sm:w-28 sm:h-28 bg-[#0082c8] rounded-full -z-0"></div>
+              <div className="w-64 h-64 sm:w-80 sm:h-80 bg-[#0082c8] rounded-full absolute -z-0"></div>
+              <img
+                src={imgHero}
+                alt="Fasilitas umum Rusak? Lapor Sekarang Tanpa Ribet"
+                className="relative z-10 max-h-[360px] sm:max-h-[420px] object-contain"
+              />
+            </div>
           </div>
         </section>
 
         <section className="max-w-7xl mx-auto px-6 py-16 lg:py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <div className="w-full h-80 lg:h-[400px] bg-gray-300 rounded-sm order-2 lg:order-1"></div>
+            <div className="relative flex items-center justify-center min-h-[340px] sm:min-h-[400px] order-2 lg:order-1">
+              <div className="w-72 h-72 sm:w-96 sm:h-96 bg-[#0082c8] rounded-full absolute -z-0"></div>
+              <img
+                src={imgAbout}
+                alt="Tentang Laporin yuk!"
+                className="relative z-10 w-full max-w-sm sm:max-w-md object-contain"
+              />
+            </div>
+
             <div className="space-y-6 order-1 lg:order-2">
               <h2 className="text-3xl lg:text-4xl font-black text-black">
                 Tentang Laporin yuk!
@@ -59,7 +83,7 @@ export default function LandingPage() {
                   <FaInstagram className="w-6 h-6 text-black" />
                 </a>
                 <a
-                  href="mailto:doaibu@gmail.com"
+                  href="mailto:LAPORIN.YUK@gmail.com"
                   aria-label="Email"
                   className="p-2 border-2 border-black rounded-full hover:bg-gray-100 transition-colors"
                 >
@@ -97,11 +121,23 @@ export default function LandingPage() {
                   trotoar rusak,
                 </p>
               </div>
-              <div className="w-full h-64 lg:h-80 bg-gray-300 rounded-sm"></div>
+              <div className="w-full">
+                <img
+                  src={imgFasum}
+                  alt="Laporan kerusakan FASUM"
+                  className="w-full h-64 sm:h-80 object-cover rounded-md shadow-sm border border-gray-200"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-              <div className="w-full h-64 lg:h-80 bg-gray-300 rounded-sm order-2 lg:order-1"></div>
+              <div className="w-full order-2 lg:order-1">
+                <img
+                  src={imgDana}
+                  alt="Dugaan Penyimpangan Dana"
+                  className="w-full h-64 sm:h-80 object-cover rounded-md shadow-sm border border-gray-200"
+                />
+              </div>
               <div className="space-y-4 order-1 lg:order-2">
                 <h3 className="text-2xl font-black text-black">
                   2. Dugaan Penyimpangan Dana
@@ -121,13 +157,18 @@ export default function LandingPage() {
                   3. Isu lingkungan
                 </h3>
                 <p className="text-gray-800 leading-relaxed text-base">
-                  layanan ini ditujukan untuk merespons ancaman kelestarian
-                  lingkungan dan kenyamanan tempat tinggal akibat tumpukan sampah
-                  liar, pembuangan limbah berbahaya ke sungai, polusi udara, hingga
-                  alih fungsi ruang terbuka hijau tanpa izin.
+                  layanan ini ditujukan untuk merespons isu lingkungan seperti
+                  tumpukan sampah liar, pembuangan limbah berbahaya ke sungai,
+                  polusi udara, hingga alih fungsi ruang terbuka hijau tanpa izin.
                 </p>
               </div>
-              <div className="w-full h-64 lg:h-80 bg-gray-300 rounded-sm"></div>
+              <div className="w-full">
+                <img
+                  src={imgLingkungan}
+                  alt="Isu lingkungan"
+                  className="w-full h-64 sm:h-80 object-cover rounded-md shadow-sm border border-gray-200"
+                />
+              </div>
             </div>
           </div>
         </section>
