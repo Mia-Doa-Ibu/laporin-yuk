@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaSearch } from "react-icons/fa";
+import { FaSearch, FaCamera, FaSpinner, FaRedo } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { DUMMY_REPORTS } from "../constants";
+import { useLaporanStore } from "../stores/useLaporanStore";
 
 function EmptyReportBox() {
   return (
@@ -53,14 +53,71 @@ function EmptyReportBox() {
 
 export default function StatusPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const { reports, fetchMyReports, isLoading, error } = useLaporanStore();
 
-  const filteredReports = DUMMY_REPORTS.filter((report) => {
+  useEffect(() => {
+    fetchMyReports();
+  }, [fetchMyReports]);
+
+  // Format tanggal ke Bahasa Indonesia yang rapi
+  const formatDate = (dateStr) => {
+    if (!dateStr) return "-";
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleDateString("id-ID", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  // Badge status sesuai status laporan dari backend
+  const renderStatusBadge = (status) => {
+    switch (status) {
+      case "valid":
+        return (
+          <span className="inline-block bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold px-3 py-1 rounded">
+            Laporan Valid / Diterima
+          </span>
+        );
+      case "invalid":
+        return (
+          <span className="inline-block bg-rose-100 text-rose-800 border border-rose-300 text-xs font-bold px-3 py-1 rounded">
+            Laporan Ditolak
+          </span>
+        );
+      case "pending":
+      default:
+        return (
+          <span className="inline-block bg-amber-100 text-amber-800 border border-amber-300 text-xs font-bold px-3 py-1 rounded">
+            Menunggu Verifikasi
+          </span>
+        );
+    }
+  };
+
+  const filteredReports = reports.filter((report) => {
     const query = searchTerm.toLowerCase();
+    const title = (report.title || "").toLowerCase();
+    const desc = (report.deskripsi || "").toLowerCase();
+    const team = (report.team_branch?.nama_tim || "").toLowerCase();
+    const kec = (
+      report.team_branch?.kecamatan?.nama_kecamatan || ""
+    ).toLowerCase();
+    const kat = (report.kategori?.nama_kategori || "").toLowerCase();
+    const stat = (report.status || "").toLowerCase();
     return (
-      report.judul.toLowerCase().includes(query) ||
-      report.kategori.toLowerCase().includes(query) ||
-      report.lokasi.toLowerCase().includes(query) ||
-      report.deskripsi.toLowerCase().includes(query)
+      title.includes(query) ||
+      desc.includes(query) ||
+      team.includes(query) ||
+      kec.includes(query) ||
+      kat.includes(query) ||
+      stat.includes(query)
     );
   });
 
@@ -75,45 +132,89 @@ export default function StatusPage() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Cari Laporan....."
+            placeholder="Cari Laporan berdasarkan judul, wilayah, atau status..."
             className="w-full pl-11 pr-4 py-2 border border-gray-400 rounded-md text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-[#0284c7] transition-all"
           />
         </div>
 
-        {filteredReports.length > 0 ? (
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between text-red-700 text-sm">
+            <span>{error}</span>
+            <button
+              onClick={() => fetchMyReports()}
+              className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-md transition-colors cursor-pointer"
+            >
+              <FaRedo className="text-xs" />
+              <span>Coba Lagi</span>
+            </button>
+          </div>
+        )}
+
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center py-24 text-gray-500">
+            <FaSpinner className="w-8 h-8 animate-spin text-[#0284c7] mb-3" />
+            <p className="text-sm font-medium">Memuat riwayat laporan Anda...</p>
+          </div>
+        ) : filteredReports.length > 0 ? (
           <div className="space-y-6">
             {filteredReports.map((report) => (
               <div
                 key={report.id}
-                className="border border-gray-300 rounded-md p-6 bg-white shadow-sm"
+                className="border border-gray-300 rounded-md p-6 bg-white shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                  <div className="lg:col-span-5 bg-[#d1d5db] h-64 sm:h-72 rounded-sm w-full" />
+                  {/* Foto Bukti Laporan */}
+                  <div className="lg:col-span-5 bg-[#e5e7eb] h-64 sm:h-72 rounded-sm w-full overflow-hidden flex items-center justify-center border border-gray-200">
+                    {report.foto_url ? (
+                      <img
+                        src={report.foto_url}
+                        alt={report.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-gray-400 text-xs flex flex-col items-center">
+                        <FaCamera className="w-10 h-10 mb-2 opacity-40" />
+                        <span>Tidak ada foto bukti</span>
+                      </div>
+                    )}
+                  </div>
 
+                  {/* Detail Informasi Laporan */}
                   <div className="lg:col-span-7 space-y-3">
-                    <h3 className="text-xl sm:text-2xl font-black text-black uppercase tracking-wide">
-                      {report.judul}
-                    </h3>
-                    <p className="text-sm text-gray-800 font-medium">
-                      {report.tanggal}
-                    </p>
-
-                    <div>
-                      <span className="inline-block bg-[#e5e7eb] text-gray-800 text-xs font-semibold px-3 py-1 rounded">
-                        {report.kategori}
-                      </span>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="text-xl sm:text-2xl font-black text-black uppercase tracking-wide">
+                        {report.title}
+                      </h3>
+                      {renderStatusBadge(report.status)}
                     </div>
 
-                    <p className="text-sm text-gray-800">
-                      <span className="font-medium">Lokasi: </span>
-                      {report.lokasi}
+                    <p className="text-xs sm:text-sm text-gray-500 font-medium">
+                      {formatDate(report.created_at)}
                     </p>
 
-                    <div className="pt-1">
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      {report.kategori?.nama_kategori && (
+                        <span className="inline-block bg-[#e5e7eb] text-gray-800 text-xs font-semibold px-3 py-1 rounded">
+                          {report.kategori.nama_kategori}
+                        </span>
+                      )}
+                      {report.team_branch?.nama_tim && (
+                        <span className="inline-block bg-sky-100 text-sky-800 text-xs font-semibold px-3 py-1 rounded">
+                          Tim: {report.team_branch.nama_tim}
+                        </span>
+                      )}
+                      {report.team_branch?.kecamatan?.nama_kecamatan && (
+                        <span className="inline-block bg-gray-100 text-gray-700 text-xs font-semibold px-3 py-1 rounded">
+                          Kecamatan: {report.team_branch.kecamatan.nama_kecamatan}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="pt-2">
                       <p className="text-sm font-semibold text-gray-800 mb-1.5">
                         Deskripsi Laporan :
                       </p>
-                      <div className="bg-[#d1d5db] p-4 rounded-sm min-h-[110px] text-sm text-gray-800 leading-relaxed">
+                      <div className="bg-[#f3f4f6] border border-gray-200 p-4 rounded-md min-h-[110px] text-sm text-gray-800 leading-relaxed whitespace-pre-line">
                         {report.deskripsi}
                       </div>
                     </div>
@@ -127,19 +228,22 @@ export default function StatusPage() {
             <EmptyReportBox />
 
             <h2 className="text-2xl sm:text-3xl font-black text-black tracking-wide mt-6 uppercase">
-              TIDAK DI TEMUKAN LAPORAN APA PUN
+              {searchTerm
+                ? "TIDAK ADA LAPORAN YANG COCOK"
+                : "TIDAK DITEMUKAN LAPORAN APA PUN"}
             </h2>
 
             <p className="text-gray-700 text-sm sm:text-base max-w-md mt-2">
-              Semua laporan dan progres laporan yang anda kirim akan muncul
-              disini
+              {searchTerm
+                ? `Tidak ditemukan hasil untuk "${searchTerm}". Silakan coba kata kunci lain.`
+                : "Semua laporan dan progres laporan yang anda kirim akan muncul disini."}
             </p>
 
             <Link
               to="/laporan"
-              className="mt-6 inline-block bg-[#0284c7] hover:bg-[#0369a1] text-white font-semibold text-sm px-8 py-2.5 rounded-lg shadow-sm transition-all"
+              className="mt-6 inline-block bg-[#0284c7] hover:bg-[#0369a1] text-white font-semibold text-sm px-8 py-2.5 rounded-lg shadow-sm transition-all cursor-pointer"
             >
-              Buat Laporan
+              Buat Laporan Baru
             </Link>
           </div>
         )}

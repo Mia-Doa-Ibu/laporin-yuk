@@ -1,26 +1,102 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
+import {
+  FaUser,
+  FaEnvelope,
+  FaLock,
+  FaBriefcase,
+  FaChevronDown,
+  FaExclamationCircle,
+  FaCheckCircle,
+} from "react-icons/fa";
+import { useAuthStore } from "../../stores/useAuthStore";
 
 export default function RegisterPelapor() {
   const navigate = useNavigate();
+  const { registerPelapor, registerAdmin, isLoading, error, clearError } =
+    useAuthStore();
+
+  const [role, setRole] = useState("pelapor");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+  const [localError, setLocalError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  const handleRoleChange = (e) => {
+    const selectedRole = e.target.value;
+    if (selectedRole === "team_branch") {
+      navigate("/register-cabang");
+      return;
+    }
+    setRole(selectedRole);
+    if (localError) setLocalError("");
+    if (error) clearError();
+  };
 
   const handleChange = (e) => {
+    if (localError) setLocalError("");
+    if (error) clearError();
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLocalError("");
+    setSuccess("");
+    clearError();
+
+    if (role === "pelapor" && !formData.name.trim()) {
+      setLocalError("Nama lengkap wajib diisi.");
+      return;
+    }
+
+    if (!formData.email.trim() || !formData.password || !formData.confirmPassword) {
+      setLocalError("Email dan password wajib diisi.");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setLocalError("Password minimal terdiri dari 6 karakter.");
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setLocalError("Konfirmasi password tidak cocok dengan password.");
+      return;
+    }
+
+    try {
+      if (role === "pelapor") {
+        await registerPelapor(formData);
+      } else if (role === "admin") {
+        await registerAdmin({
+          email: formData.email,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+        });
+      }
+
+      setSuccess(
+        `Registrasi ${
+          role === "admin" ? "Admin" : "Pelapor"
+        } berhasil! Mengalihkan ke halaman login...`
+      );
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
+    } catch {
+      // Error ditangani oleh useAuthStore
+    }
   };
+
+  const errorMessage = localError || error;
 
   return (
     <div className="w-full max-w-md bg-[#0c1322] rounded-2xl p-8 shadow-2xl border border-gray-800">
@@ -29,27 +105,63 @@ export default function RegisterPelapor() {
           BUAT AKUN
         </h2>
         <p className="text-gray-300 text-sm mt-1">
-          Isi data di bawah ini untuk mendaftar.
+          Daftarkan akun Anda untuk mulai menggunakan sistem.
         </p>
       </div>
+
+      {errorMessage && (
+        <div className="mb-4 p-3 bg-red-500/15 border border-red-500/40 rounded-xl flex items-center gap-2 text-red-300 text-xs">
+          <FaExclamationCircle className="flex-shrink-0 text-red-400 text-sm" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
+
+      {success && (
+        <div className="mb-4 p-3 bg-emerald-500/15 border border-emerald-500/40 rounded-xl flex items-center gap-2 text-emerald-300 text-xs">
+          <FaCheckCircle className="flex-shrink-0 text-emerald-400 text-sm" />
+          <span>{success}</span>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-white font-bold text-sm mb-1.5">
-            Nama Lengkap :
+            Daftar Sebagai :
           </label>
-          <div className="flex items-center bg-[#cfd3d8] rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-[#0082c8] transition-all">
-            <FaUser className="text-gray-600 mr-3 text-base flex-shrink-0" />
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Nama lengkap anda"
-              className="bg-transparent w-full text-sm font-medium text-gray-800 placeholder-gray-500 outline-none"
-            />
+          <div className="relative flex items-center bg-[#cfd3d8] rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-[#0082c8] transition-all">
+            <FaBriefcase className="text-gray-600 mr-3 text-base flex-shrink-0" />
+            <select
+              value={role}
+              onChange={handleRoleChange}
+              className="bg-transparent w-full text-sm font-medium text-gray-800 outline-none appearance-none cursor-pointer pr-6"
+            >
+              <option value="pelapor">Pelapor / Masyarakat</option>
+              <option value="admin">Admin Pusat</option>
+              <option value="team_branch">Tim Cabang (Formulir Khusus)</option>
+            </select>
+            <FaChevronDown className="absolute right-4 text-gray-600 pointer-events-none text-xs" />
           </div>
         </div>
+
+        {role === "pelapor" && (
+          <div>
+            <label className="block text-white font-bold text-sm mb-1.5">
+              Nama Lengkap :
+            </label>
+            <div className="flex items-center bg-[#cfd3d8] rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-[#0082c8] transition-all">
+              <FaUser className="text-gray-600 mr-3 text-base flex-shrink-0" />
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Nama lengkap anda"
+                className="bg-transparent w-full text-sm font-medium text-gray-800 placeholder-gray-500 outline-none"
+                required
+              />
+            </div>
+          </div>
+        )}
 
         <div>
           <label className="block text-white font-bold text-sm mb-1.5">
@@ -64,6 +176,7 @@ export default function RegisterPelapor() {
               onChange={handleChange}
               placeholder="account@gmail.com"
               className="bg-transparent w-full text-sm font-medium text-gray-800 placeholder-gray-500 outline-none"
+              required
             />
           </div>
         </div>
@@ -81,6 +194,7 @@ export default function RegisterPelapor() {
               onChange={handleChange}
               placeholder="••••••••"
               className="bg-transparent w-full text-sm font-medium text-gray-800 placeholder-gray-500 outline-none"
+              required
             />
           </div>
         </div>
@@ -98,6 +212,7 @@ export default function RegisterPelapor() {
               onChange={handleChange}
               placeholder="••••••••"
               className="bg-transparent w-full text-sm font-medium text-gray-800 placeholder-gray-500 outline-none"
+              required
             />
           </div>
         </div>
@@ -105,9 +220,12 @@ export default function RegisterPelapor() {
         <div className="pt-2">
           <button
             type="submit"
-            className="w-full bg-[#0082c8] hover:bg-[#0274b3] text-white font-bold py-3.5 rounded-2xl shadow-md transition-all active:scale-[0.99]"
+            disabled={isLoading || !!success}
+            className="w-full bg-[#0082c8] hover:bg-[#0274b3] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-2xl shadow-md transition-all active:scale-[0.99] cursor-pointer"
           >
-            Buat Akun
+            {isLoading
+              ? "Mendaftarkan..."
+              : `Buat Akun ${role === "admin" ? "Admin" : "Pelapor"}`}
           </button>
         </div>
       </form>
@@ -118,7 +236,7 @@ export default function RegisterPelapor() {
           <button
             type="button"
             onClick={() => navigate("/login")}
-            className="text-[#0082c8] font-semibold hover:underline"
+            className="text-[#0082c8] font-semibold hover:underline cursor-pointer"
           >
             Masuk disini
           </button>
@@ -128,7 +246,7 @@ export default function RegisterPelapor() {
           <button
             type="button"
             onClick={() => navigate("/register-cabang")}
-            className="text-[#0082c8] font-semibold hover:underline"
+            className="text-[#0082c8] font-semibold hover:underline cursor-pointer"
           >
             Daftar Tim Cabang
           </button>

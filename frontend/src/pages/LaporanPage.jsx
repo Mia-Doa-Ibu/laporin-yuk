@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaChevronDown,
   FaCamera,
@@ -7,16 +8,28 @@ import {
   FaFileAlt,
   FaCommentDots,
   FaCheck,
+  FaExclamationCircle,
+  FaCheckCircle,
 } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import {
   KATEGORI_LAPORAN_OPTIONS,
-  TIM_LAPANGAN_OPTIONS,
   ALUR_PELAPORAN_STEPS,
 } from "../constants";
+import { useLaporanStore } from "../stores/useLaporanStore";
 
 export default function LaporanPage() {
+  const navigate = useNavigate();
+  const {
+    teamBranches,
+    fetchTeamBranches,
+    createReport,
+    isSubmitting,
+    error,
+    clearError,
+  } = useLaporanStore();
+
   const [formData, setFormData] = useState({
     judul: "",
     deskripsi: "",
@@ -27,8 +40,18 @@ export default function LaporanPage() {
   });
 
   const [fileName, setFileName] = useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [localError, setLocalError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  // Ambil daftar tim cabang yang tersedia di backend saat komponen dimuat
+  useEffect(() => {
+    fetchTeamBranches();
+  }, [fetchTeamBranches]);
 
   const handleChange = (e) => {
+    if (localError) setLocalError("");
+    if (error) clearError();
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -37,17 +60,84 @@ export default function LaporanPage() {
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
       setFormData((prev) => ({
         ...prev,
-        fileBukti: e.target.files[0],
+        fileBukti: file,
       }));
-      setFileName(e.target.files[0].name);
+      setFileName(file.name);
+      setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  // Mengubah file gambar ke base64 agar dapat disimpan di foto_url
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (err) => reject(err);
+    });
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLocalError("");
+    setSuccess("");
+    clearError();
+
+    if (!formData.judul.trim()) {
+      setLocalError("Judul laporan wajib diisi.");
+      return;
+    }
+
+    if (!formData.deskripsi.trim()) {
+      setLocalError("Deskripsi laporan wajib diisi.");
+      return;
+    }
+
+    if (!formData.timLapangan) {
+      setLocalError("Pilih tim lapangan untuk memproses laporan.");
+      return;
+    }
+
+    try {
+      let fotoUrl = null;
+      if (formData.fileBukti) {
+        fotoUrl = await convertToBase64(formData.fileBukti);
+      }
+
+      // Gabungkan informasi lokasi dan kategori ke deskripsi agar lengkap
+      let fullDeskripsi = formData.deskripsi.trim();
+      if (formData.lokasi.trim()) {
+        fullDeskripsi += `\n\nLokasi: ${formData.lokasi.trim()}`;
+      }
+      if (formData.kategori) {
+        const katObj = KATEGORI_LAPORAN_OPTIONS.find(
+          (k) => k.value === formData.kategori
+        );
+        if (katObj) {
+          fullDeskripsi += `\nKategori: ${katObj.label}`;
+        }
+      }
+
+      await createReport({
+        id_team_branch: formData.timLapangan,
+        title: formData.judul.trim(),
+        deskripsi: fullDeskripsi,
+        foto_url: fotoUrl,
+      });
+
+      setSuccess("Laporan Anda berhasil dikirim! Mengalihkan ke halaman status...");
+      setTimeout(() => {
+        navigate("/status");
+      }, 1500);
+    } catch {
+      // Error sudah ditangani di store
+    }
+  };
+
+  const errorMessage = localError || error;
 
   const getStepIcon = (stepNumber) => {
     switch (stepNumber) {
@@ -74,7 +164,7 @@ export default function LaporanPage() {
         <section className="bg-gradient-to-b from-[#0082c8] via-[#0082c8] via-[65%] to-white pt-12 pb-24 px-4 sm:px-6">
           <div className="max-w-4xl mx-auto text-center text-white space-y-3 mb-10">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight">
-              layanan Pengaduan dan Pemantauan
+              Layanan Pengaduan dan Pemantauan
               <br />
               Infrastruktur Publik
             </h1>
@@ -90,10 +180,24 @@ export default function LaporanPage() {
               LAPORAN ANDA
             </h2>
 
+            {errorMessage && (
+              <div className="mb-5 p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700 text-xs font-semibold">
+                <FaExclamationCircle className="flex-shrink-0 text-red-500 text-base" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
+            {success && (
+              <div className="mb-5 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-emerald-800 text-xs font-semibold">
+                <FaCheckCircle className="flex-shrink-0 text-emerald-500 text-base" />
+                <span>{success}</span>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                  Judul Laporan
+                  Judul Laporan <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -102,20 +206,22 @@ export default function LaporanPage() {
                   onChange={handleChange}
                   placeholder="Ketik judul laporan anda"
                   className="w-full bg-[#e9ecef] border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#0082c8] focus:border-transparent transition-all"
+                  required
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                  Deskripsi Laporan
+                  Deskripsi Laporan <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   name="deskripsi"
                   rows={4}
                   value={formData.deskripsi}
                   onChange={handleChange}
-                  placeholder="Ketik deskripsi laporan anda"
+                  placeholder="Ketik deskripsi laporan anda secara detail"
                   className="w-full bg-[#e9ecef] border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#0082c8] focus:border-transparent transition-all resize-none"
+                  required
                 />
               </div>
 
@@ -128,7 +234,7 @@ export default function LaporanPage() {
                   name="lokasi"
                   value={formData.lokasi}
                   onChange={handleChange}
-                  placeholder="Ketik lokasi laporan"
+                  placeholder="Ketik lokasi spesifik laporan"
                   className="w-full bg-[#e9ecef] border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-[#0082c8] focus:border-transparent transition-all"
                 />
               </div>
@@ -144,9 +250,7 @@ export default function LaporanPage() {
                     onChange={handleChange}
                     className="w-full bg-[#e9ecef] border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-800 outline-none appearance-none cursor-pointer pr-10 focus:ring-2 focus:ring-[#0082c8] focus:border-transparent transition-all"
                   >
-                    <option value="" disabled>
-                      Pilih kategori laporan
-                    </option>
+                    <option value="">Pilih kategori laporan</option>
                     {KATEGORI_LAPORAN_OPTIONS.map((item) => (
                       <option key={item.value} value={item.value}>
                         {item.label}
@@ -159,7 +263,7 @@ export default function LaporanPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1.5">
-                  Tim Lapangan
+                  Tim Lapangan Dituju <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <select
@@ -167,18 +271,25 @@ export default function LaporanPage() {
                     value={formData.timLapangan}
                     onChange={handleChange}
                     className="w-full bg-[#e9ecef] border border-gray-300 rounded-lg px-4 py-2.5 text-sm text-gray-800 outline-none appearance-none cursor-pointer pr-10 focus:ring-2 focus:ring-[#0082c8] focus:border-transparent transition-all"
+                    required
                   >
-                    <option value="" disabled>
-                      Pilih tim lapangan untuk verifikasi
-                    </option>
-                    {TIM_LAPANGAN_OPTIONS.map((item) => (
-                      <option key={item.value} value={item.value}>
-                        {item.label}
+                    <option value="">Pilih tim cabang / lapangan</option>
+                    {teamBranches.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.nama_tim}{" "}
+                        {item.kecamatan?.nama_kecamatan
+                          ? `(${item.kecamatan.nama_kecamatan})`
+                          : ""}
                       </option>
                     ))}
                   </select>
                   <FaChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-xs" />
                 </div>
+                {teamBranches.length === 0 && (
+                  <p className="text-[11px] text-amber-600 mt-1">
+                    * Belum ada tim cabang yang terdaftar di database.
+                  </p>
+                )}
               </div>
 
               <div className="pt-1">
@@ -194,16 +305,26 @@ export default function LaporanPage() {
                   className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-500 rounded-md text-xs font-semibold text-gray-800 bg-white hover:bg-gray-50 cursor-pointer transition-colors shadow-sm"
                 >
                   <FaCamera className="text-gray-700 text-sm" />
-                  <span>{fileName ? fileName : "Upload Bukti"}</span>
+                  <span>{fileName ? fileName : "Upload Bukti Foto"}</span>
                 </label>
+                {previewUrl && (
+                  <div className="mt-3">
+                    <img
+                      src={previewUrl}
+                      alt="Preview Bukti"
+                      className="w-32 h-24 object-cover rounded-lg border border-gray-300 shadow-sm"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full bg-[#0284c7] hover:bg-[#0369a1] text-white font-bold py-3 rounded-lg shadow-sm transition-all uppercase tracking-wider text-sm active:scale-[0.99]"
+                  disabled={isSubmitting || !!success}
+                  className="w-full bg-[#0284c7] hover:bg-[#0369a1] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-3 rounded-lg shadow-sm transition-all uppercase tracking-wider text-sm active:scale-[0.99] cursor-pointer"
                 >
-                  KIRIM LAPORAN
+                  {isSubmitting ? "Mengirim Laporan..." : "KIRIM LAPORAN"}
                 </button>
               </div>
             </form>

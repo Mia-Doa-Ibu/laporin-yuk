@@ -1,15 +1,27 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaChevronDown } from "react-icons/fa";
+import {
+  FaChevronDown,
+  FaExclamationCircle,
+  FaCheckCircle,
+} from "react-icons/fa";
+import { useAuthStore } from "../../stores/useAuthStore";
+import authService from "../../services/authService";
 
 export default function RegisterCabang() {
   const navigate = useNavigate();
+  const { registerTeamBranch, isLoading, error, clearError } = useAuthStore();
+
   const [step, setStep] = useState(1);
+  const [kecamatanList, setKecamatanList] = useState([]);
+  const [localError, setLocalError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const initialForm = {
     domisili: "",
     namaTim: "",
     noTelepon: "",
+    email: "",
     password: "",
     confirmPassword: "",
     anggota: [
@@ -23,7 +35,33 @@ export default function RegisterCabang() {
 
   const [formData, setFormData] = useState(initialForm);
 
+  // Ambil daftar kecamatan langsung dari database melalui API publik
+  useEffect(() => {
+    const fetchKecamatan = async () => {
+      try {
+        const res = await authService.getKecamatan();
+        if (res.data && res.data.length > 0) {
+          setKecamatanList(res.data);
+        }
+      } catch {
+        // Jika belum ada data dari backend, gunakan default list
+        setKecamatanList([
+          { id: "Pasar Kemis", nama_kecamatan: "Pasar Kemis" },
+          { id: "Cikupa", nama_kecamatan: "Cikupa" },
+          { id: "Balaraja", nama_kecamatan: "Balaraja" },
+          { id: "Curug", nama_kecamatan: "Curug" },
+          { id: "Kelapa Dua", nama_kecamatan: "Kelapa Dua" },
+          { id: "Rajeg", nama_kecamatan: "Rajeg" },
+        ]);
+      }
+    };
+
+    fetchKecamatan();
+  }, []);
+
   const handleFieldChange = (field, value) => {
+    if (localError) setLocalError("");
+    if (error) clearError();
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -59,11 +97,68 @@ export default function RegisterCabang() {
 
   const handleReset = () => {
     setFormData(initialForm);
+    setLocalError("");
+    setSuccess("");
+    clearError();
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLocalError("");
+    setSuccess("");
+    clearError();
+
+    if (!formData.domisili) {
+      setLocalError("Pilih domisili kecamatan.");
+      return;
+    }
+    if (!formData.namaTim.trim()) {
+      setLocalError("Nama tim cabang wajib diisi.");
+      return;
+    }
+    if (!formData.noTelepon.trim()) {
+      setLocalError("Nomor telepon ketua tim wajib diisi.");
+      return;
+    }
+    if (!formData.email.trim()) {
+      setLocalError("Email akun tim cabang wajib diisi.");
+      return;
+    }
+    if (!formData.password) {
+      setLocalError("Password wajib diisi.");
+      return;
+    }
+    if (formData.password.length < 6) {
+      setLocalError("Password minimal 6 karakter.");
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setLocalError("Konfirmasi password tidak cocok dengan password.");
+      return;
+    }
+
+    try {
+      await registerTeamBranch({
+        namaTim: formData.namaTim,
+        domisili: formData.domisili,
+        noTelepon: formData.noTelepon,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+      });
+
+      setSuccess(
+        "Pendaftaran tim cabang berhasil diajukan! Akun Anda sedang menunggu proses verifikasi oleh Admin. Mengalihkan ke halaman login..."
+      );
+      setTimeout(() => {
+        navigate("/login");
+      }, 2500);
+    } catch {
+      // Error ditangani oleh useAuthStore
+    }
   };
+
+  const errorMessage = localError || error;
 
   if (step === 1) {
     return (
@@ -110,7 +205,7 @@ export default function RegisterCabang() {
           <button
             type="button"
             onClick={() => setStep(2)}
-            className="bg-[#0082c8] hover:bg-[#0274b3] text-white font-bold px-12 py-3 rounded-lg text-sm shadow-sm transition-all active:scale-[0.98]"
+            className="bg-[#0082c8] hover:bg-[#0274b3] text-white font-bold px-12 py-3 rounded-lg text-sm shadow-sm transition-all active:scale-[0.98] cursor-pointer"
           >
             Daftar
           </button>
@@ -127,9 +222,23 @@ export default function RegisterCabang() {
             Formulir Pendaftaran Tim Cabang
           </h2>
           <p className="text-xs sm:text-sm text-gray-700 font-medium mt-1">
-            Lengkapi identitas anggota dan informasi wilayah operasional
+            Lengkapi identitas akun tim dan informasi wilayah operasional
           </p>
         </div>
+
+        {errorMessage && (
+          <div className="mb-6 p-3.5 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700 text-xs font-semibold">
+            <FaExclamationCircle className="flex-shrink-0 text-red-500 text-base" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
+        {success && (
+          <div className="mb-6 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-2 text-emerald-800 text-xs font-semibold">
+            <FaCheckCircle className="flex-shrink-0 text-emerald-500 text-base" />
+            <span>{success}</span>
+          </div>
+        )}
 
         <hr className="border-gray-200 mb-8" />
 
@@ -144,14 +253,14 @@ export default function RegisterCabang() {
                   value={formData.domisili}
                   onChange={(e) => handleFieldChange("domisili", e.target.value)}
                   className="w-full border border-gray-400 rounded-md px-3.5 py-2 text-xs text-gray-800 outline-none appearance-none pr-8 bg-white focus:border-[#0082c8] transition-all cursor-pointer"
+                  required
                 >
                   <option value="">Pilih Kecamatan</option>
-                  <option value="Pasar Kemis">Pasar Kemis</option>
-                  <option value="Cikupa">Cikupa</option>
-                  <option value="Balaraja">Balaraja</option>
-                  <option value="Curug">Curug</option>
-                  <option value="Kelapa Dua">Kelapa Dua</option>
-                  <option value="Rajeg">Rajeg</option>
+                  {kecamatanList.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.nama_kecamatan || item.nama}
+                    </option>
+                  ))}
                 </select>
                 <FaChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none text-xs" />
               </div>
@@ -167,6 +276,7 @@ export default function RegisterCabang() {
                 onChange={(e) => handleFieldChange("namaTim", e.target.value)}
                 placeholder="Contoh : Tim Cabang A"
                 className="w-full border border-gray-400 rounded-md px-3.5 py-2 text-xs text-gray-800 placeholder-gray-400 outline-none focus:border-[#0082c8] transition-all bg-white"
+                required
               />
             </div>
 
@@ -180,11 +290,26 @@ export default function RegisterCabang() {
                 onChange={(e) => handleFieldChange("noTelepon", e.target.value)}
                 placeholder="08xxxxxxxxxx (Aktif)"
                 className="w-full border border-gray-400 rounded-md px-3.5 py-2 text-xs text-gray-800 placeholder-gray-400 outline-none focus:border-[#0082c8] transition-all bg-white"
+                required
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label className="block text-xs sm:text-sm font-bold text-black mb-2">
+                Email Akun Tim :
+              </label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleFieldChange("email", e.target.value)}
+                placeholder="tim.cabang@mail.com"
+                className="w-full border border-gray-400 rounded-md px-3.5 py-2 text-xs text-gray-800 placeholder-gray-400 outline-none focus:border-[#0082c8] transition-all bg-white"
+                required
+              />
+            </div>
+
             <div>
               <label className="block text-xs sm:text-sm font-bold text-black mb-2">
                 Password :
@@ -195,6 +320,7 @@ export default function RegisterCabang() {
                 onChange={(e) => handleFieldChange("password", e.target.value)}
                 placeholder="••••••••"
                 className="w-full border border-gray-400 rounded-md px-3.5 py-2 text-xs text-gray-800 placeholder-gray-400 outline-none focus:border-[#0082c8] transition-all bg-white"
+                required
               />
             </div>
 
@@ -208,6 +334,7 @@ export default function RegisterCabang() {
                 onChange={(e) => handleFieldChange("confirmPassword", e.target.value)}
                 placeholder="••••••••"
                 className="w-full border border-gray-400 rounded-md px-3.5 py-2 text-xs text-gray-800 placeholder-gray-400 outline-none focus:border-[#0082c8] transition-all bg-white"
+                required
               />
             </div>
           </div>
@@ -283,7 +410,7 @@ export default function RegisterCabang() {
             <button
               type="button"
               onClick={handleAddAnggota}
-              className="w-full sm:w-auto border border-dashed border-gray-800 hover:border-black text-black text-xs font-bold px-4 py-2 rounded-lg transition-all active:scale-[0.98]"
+              className="w-full sm:w-auto border border-dashed border-gray-800 hover:border-black text-black text-xs font-bold px-4 py-2 rounded-lg transition-all active:scale-[0.98] cursor-pointer"
             >
               + Tambah Anggota
             </button>
@@ -292,15 +419,16 @@ export default function RegisterCabang() {
               <button
                 type="button"
                 onClick={handleReset}
-                className="w-full sm:w-auto border border-gray-400 text-gray-800 hover:bg-gray-50 text-xs font-semibold px-6 py-2 rounded-md transition-all active:scale-[0.98]"
+                className="w-full sm:w-auto border border-gray-400 text-gray-800 hover:bg-gray-50 text-xs font-semibold px-6 py-2 rounded-md transition-all active:scale-[0.98] cursor-pointer"
               >
                 Reset
               </button>
               <button
                 type="submit"
-                className="w-full sm:w-auto bg-[#059669] hover:bg-[#047857] text-white text-xs font-semibold px-7 py-2 rounded-md transition-all active:scale-[0.98]"
+                disabled={isLoading || !!success}
+                className="w-full sm:w-auto bg-[#059669] hover:bg-[#047857] disabled:opacity-60 disabled:cursor-not-allowed text-white text-xs font-semibold px-7 py-2 rounded-md transition-all active:scale-[0.98] cursor-pointer"
               >
-                Kirim
+                {isLoading ? "Mengirim Data..." : "Kirim"}
               </button>
             </div>
           </div>

@@ -5,6 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  envPrefix: ['VITE_', 'REACT_APP_'],
   plugins: [
     react(),
     babel({ presets: [reactCompilerPreset()] }),
@@ -12,6 +13,10 @@ export default defineConfig({
   ],
   server: {
     proxy: {
+      "/api": {
+        target: "http://localhost:3000",
+        changeOrigin: true,
+      },
       "/api-wilayah": {
         target: "https://emsifa.github.io/api-wilayah-indonesia/api",
         changeOrigin: true,

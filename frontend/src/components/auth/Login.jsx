@@ -1,25 +1,79 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FaEnvelope, FaLock, FaBriefcase, FaChevronDown } from "react-icons/fa";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  FaEnvelope,
+  FaLock,
+  FaBriefcase,
+  FaChevronDown,
+  FaExclamationCircle,
+  FaInfoCircle,
+} from "react-icons/fa";
+import { useAuthStore } from "../../stores/useAuthStore";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname;
+
+  const { login, isLoading, error, clearError } = useAuthStore();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     role: "",
   });
+  const [localError, setLocalError] = useState("");
 
   const handleChange = (e) => {
+    if (localError) setLocalError("");
+    if (error) clearError();
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLocalError("");
+    clearError();
+
+    if (!formData.email || !formData.password) {
+      setLocalError("Email dan password wajib diisi.");
+      return;
+    }
+
+    try {
+      const data = await login({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      const actualRole = data.user?.user_metadata?.role;
+
+      // Jika sebelumnya diarahkan dari protected route (misal /laporan atau /status),
+      // arahkan langsung kembali ke halaman yang diinginkan user
+      if (from) {
+        navigate(from, { replace: true });
+        return;
+      }
+
+      // Arahkan ke dashboard sesuai role pengguna
+      if (actualRole === "admin") {
+        navigate("/admin/verifikasi", { replace: true });
+      } else if (actualRole === "team_branch") {
+        navigate("/cabang", { replace: true });
+      } else if (actualRole === "pelapor") {
+        navigate("/laporan", { replace: true });
+      } else {
+        navigate("/", { replace: true });
+      }
+    } catch {
+      // Error sudah ditangani di useAuthStore
+    }
   };
+
+  const errorMessage = localError || error;
 
   return (
     <div className="w-full max-w-md bg-[#0c1322] rounded-2xl p-8 shadow-2xl border border-gray-800">
@@ -33,6 +87,20 @@ export default function Login() {
           Masukan email dan password anda untuk masuk
         </p>
       </div>
+
+      {from && (
+        <div className="mb-4 p-3 bg-sky-500/15 border border-sky-500/40 rounded-xl flex items-center gap-2 text-sky-200 text-xs">
+          <FaInfoCircle className="flex-shrink-0 text-sky-400 text-sm" />
+          <span>Silakan login terlebih dahulu untuk mengakses halaman tersebut.</span>
+        </div>
+      )}
+
+      {errorMessage && (
+        <div className="mb-4 p-3 bg-red-500/15 border border-red-500/40 rounded-xl flex items-center gap-2 text-red-300 text-xs">
+          <FaExclamationCircle className="flex-shrink-0 text-red-400 text-sm" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -48,6 +116,7 @@ export default function Login() {
               onChange={handleChange}
               placeholder="account@gmail.com"
               className="bg-transparent w-full text-sm font-medium text-gray-800 placeholder-gray-500 outline-none"
+              required
             />
           </div>
         </div>
@@ -65,6 +134,7 @@ export default function Login() {
               onChange={handleChange}
               placeholder="••••••••"
               className="bg-transparent w-full text-sm font-medium text-gray-800 placeholder-gray-500 outline-none"
+              required
             />
           </div>
         </div>
@@ -81,9 +151,7 @@ export default function Login() {
               onChange={handleChange}
               className="bg-transparent w-full text-sm font-medium text-gray-800 outline-none appearance-none cursor-pointer pr-6"
             >
-              <option value="" disabled>
-                Masukan peran anda
-              </option>
+              <option value="">Deteksi Otomatis Sesuai Akun</option>
               <option value="pelapor">Pelapor / Masyarakat</option>
               <option value="tim_cabang">Tim Cabang</option>
               <option value="admin_pusat">Admin Pusat</option>
@@ -95,9 +163,10 @@ export default function Login() {
         <div className="pt-2">
           <button
             type="submit"
-            className="w-full bg-[#0082c8] hover:bg-[#0274b3] text-white font-bold py-3.5 rounded-2xl shadow-md transition-all active:scale-[0.99]"
+            disabled={isLoading}
+            className="w-full bg-[#0082c8] hover:bg-[#0274b3] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-2xl shadow-md transition-all active:scale-[0.99] cursor-pointer"
           >
-            Masuk
+            {isLoading ? "Memproses..." : "Masuk"}
           </button>
         </div>
       </form>
@@ -107,7 +176,7 @@ export default function Login() {
         <button
           type="button"
           onClick={() => navigate("/register")}
-          className="text-[#0082c8] font-semibold hover:underline"
+          className="text-[#0082c8] font-semibold hover:underline cursor-pointer"
         >
           Buat akun
         </button>
