@@ -18,9 +18,11 @@ import {
   ALUR_PELAPORAN_STEPS,
 } from "../constants";
 import { useLaporanStore } from "../stores/useLaporanStore";
+import { useAlertStore } from "../stores/useAlertStore";
 
 export default function LaporanPage() {
   const navigate = useNavigate();
+  const { showAlert } = useAlertStore();
   const {
     teamBranches,
     fetchTeamBranches,
@@ -44,7 +46,6 @@ export default function LaporanPage() {
   const [localError, setLocalError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Ambil daftar tim cabang yang tersedia di backend saat komponen dimuat
   useEffect(() => {
     fetchTeamBranches();
   }, [fetchTeamBranches]);
@@ -70,7 +71,6 @@ export default function LaporanPage() {
     }
   };
 
-  // Mengubah file gambar ke base64 agar dapat disimpan di foto_url
   const convertToBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -107,7 +107,6 @@ export default function LaporanPage() {
         fotoUrl = await convertToBase64(formData.fileBukti);
       }
 
-      // Gabungkan informasi lokasi dan kategori ke deskripsi agar lengkap
       let fullDeskripsi = formData.deskripsi.trim();
       if (formData.lokasi.trim()) {
         fullDeskripsi += `\n\nLokasi: ${formData.lokasi.trim()}`;
@@ -128,12 +127,26 @@ export default function LaporanPage() {
         foto_url: fotoUrl,
       });
 
-      setSuccess("Laporan Anda berhasil dikirim! Mengalihkan ke halaman status...");
-      setTimeout(() => {
-        navigate("/status");
-      }, 1500);
-    } catch {
-      // Error sudah ditangani di store
+      showAlert({
+        type: "success",
+        title: "Laporan berhasil",
+        message: "Laporan Anda telah berhasil diajukan",
+        buttonText: "OKE",
+        onConfirm: () => {
+          navigate("/status");
+        },
+      });
+    } catch (err) {
+      const errMsg =
+        err.response?.data?.error ||
+        err.message ||
+        "Gagal mengirim laporan. Silakan coba kembali.";
+      showAlert({
+        type: "error",
+        title: "Gagal mengirim laporan",
+        message: errMsg,
+        buttonText: "OKE",
+      });
     }
   };
 

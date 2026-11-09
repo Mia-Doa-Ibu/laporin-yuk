@@ -16,7 +16,7 @@ export const getAllTeamBranch = async (req, res) => {
         id,
         user_id,
         nama_tim,
-        nomor_ketua
+        nomor_ketua,
         is_verified,
         created_at,
         kecamatan (id, nama_kecamatan, kabupaten, provinsi)
@@ -101,8 +101,7 @@ export const updateTeamBranch = async (req, res) => {
       .from('team_branch')
       .update({ 
         nama_tim: nama_tim || undefined, 
-        id_kecamatan: id_kecamatan || undefined, 
-        updated_at: new Date() 
+        id_kecamatan: id_kecamatan || undefined
       })
       .eq('id', id)
       .select()
@@ -129,7 +128,7 @@ export const verifyTeamBranch = async (req, res) => {
 
     const { data, error } = await supabaseAdmin
       .from('team_branch')
-      .update({ is_verified, updated_at: new Date() })
+      .update({ is_verified })
       .eq('id', id)
       .select()
 

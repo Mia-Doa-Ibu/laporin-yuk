@@ -65,7 +65,6 @@ export default function AdminWilayahPage() {
       try {
         await deleteKecamatan(id);
       } catch {
-        // Error sudah ditangani di store
       }
     }
   };
@@ -84,7 +83,6 @@ export default function AdminWilayahPage() {
       }
       setModalState({ isOpen: false, mode: "add", id: null, nama: "" });
     } catch {
-      // Error sudah ditangani di store
     }
   };
 

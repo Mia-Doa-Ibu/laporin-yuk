@@ -59,7 +59,6 @@ export default function StatusPage() {
     fetchMyReports();
   }, [fetchMyReports]);
 
-  // Format tanggal ke Bahasa Indonesia yang rapi
   const formatDate = (dateStr) => {
     if (!dateStr) return "-";
     try {
@@ -76,7 +75,6 @@ export default function StatusPage() {
     }
   };
 
-  // Badge status sesuai status laporan dari backend
   const renderStatusBadge = (status) => {
     switch (status) {
       case "valid":
@@ -163,7 +161,7 @@ export default function StatusPage() {
                 className="border border-gray-300 rounded-md p-6 bg-white shadow-sm hover:shadow-md transition-shadow"
               >
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                  {/* Foto Bukti Laporan */}
+                  
                   <div className="lg:col-span-5 bg-[#e5e7eb] h-64 sm:h-72 rounded-sm w-full overflow-hidden flex items-center justify-center border border-gray-200">
                     {report.foto_url ? (
                       <img
@@ -179,7 +177,7 @@ export default function StatusPage() {
                     )}
                   </div>
 
-                  {/* Detail Informasi Laporan */}
+                  
                   <div className="lg:col-span-7 space-y-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <h3 className="text-xl sm:text-2xl font-black text-black uppercase tracking-wide">

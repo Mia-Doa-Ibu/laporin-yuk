@@ -90,7 +90,7 @@ export const updateKecamatan = async (req, res) => {
 
     const { data, error } = await supabaseAdmin
       .from('kecamatan')
-      .update({ nama_kecamatan, kabupaten, provinsi, updated_at: new Date() })
+      .update({ nama_kecamatan, kabupaten, provinsi })
       .eq('id', id)
       .select()
 

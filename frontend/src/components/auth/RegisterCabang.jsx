@@ -1,16 +1,21 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   FaChevronDown,
   FaExclamationCircle,
   FaCheckCircle,
 } from "react-icons/fa";
 import { useAuthStore } from "../../stores/useAuthStore";
+import { useAlertStore } from "../../stores/useAlertStore";
 import authService from "../../services/authService";
 
 export default function RegisterCabang() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const passedData = location.state || {};
+
   const { registerTeamBranch, isLoading, error, clearError } = useAuthStore();
+  const { showAlert } = useAlertStore();
 
   const [step, setStep] = useState(1);
   const [kecamatanList, setKecamatanList] = useState([]);
@@ -19,11 +24,11 @@ export default function RegisterCabang() {
 
   const initialForm = {
     domisili: "",
-    namaTim: "",
+    namaTim: passedData.namaTim || "",
     noTelepon: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
+    email: passedData.email || "",
+    password: passedData.password || "",
+    confirmPassword: passedData.confirmPassword || "",
     anggota: [
       { rolePlaceholder: "Ketua tim", nama: "", nik: "", gender: "Laki-laki", umur: "" },
       { rolePlaceholder: "Anggota tim", nama: "", nik: "", gender: "Laki-laki", umur: "" },
@@ -35,7 +40,18 @@ export default function RegisterCabang() {
 
   const [formData, setFormData] = useState(initialForm);
 
-  // Ambil daftar kecamatan langsung dari database melalui API publik
+  useEffect(() => {
+    if (location.state) {
+      setFormData((prev) => ({
+        ...prev,
+        namaTim: location.state.namaTim || prev.namaTim,
+        email: location.state.email || prev.email,
+        password: location.state.password || prev.password,
+        confirmPassword: location.state.confirmPassword || prev.confirmPassword,
+      }));
+    }
+  }, [location.state]);
+
   useEffect(() => {
     const fetchKecamatan = async () => {
       try {
@@ -44,7 +60,6 @@ export default function RegisterCabang() {
           setKecamatanList(res.data);
         }
       } catch {
-        // Jika belum ada data dari backend, gunakan default list
         setKecamatanList([
           { id: "Pasar Kemis", nama_kecamatan: "Pasar Kemis" },
           { id: "Cikupa", nama_kecamatan: "Cikupa" },
@@ -109,31 +124,80 @@ export default function RegisterCabang() {
     clearError();
 
     if (!formData.domisili) {
-      setLocalError("Pilih domisili kecamatan.");
+      const msg = "Pilih domisili kecamatan.";
+      setLocalError(msg);
+      showAlert({
+        type: "error",
+        title: "Pendaftaran gagal",
+        message: msg,
+        buttonText: "OKE",
+      });
       return;
     }
     if (!formData.namaTim.trim()) {
-      setLocalError("Nama tim cabang wajib diisi.");
+      const msg = "Nama tim cabang wajib diisi.";
+      setLocalError(msg);
+      showAlert({
+        type: "error",
+        title: "Pendaftaran gagal",
+        message: msg,
+        buttonText: "OKE",
+      });
       return;
     }
     if (!formData.noTelepon.trim()) {
-      setLocalError("Nomor telepon ketua tim wajib diisi.");
+      const msg = "Nomor telepon ketua tim wajib diisi.";
+      setLocalError(msg);
+      showAlert({
+        type: "error",
+        title: "Pendaftaran gagal",
+        message: msg,
+        buttonText: "OKE",
+      });
       return;
     }
     if (!formData.email.trim()) {
-      setLocalError("Email akun tim cabang wajib diisi.");
+      const msg = "Email akun tim cabang wajib diisi.";
+      setLocalError(msg);
+      showAlert({
+        type: "error",
+        title: "Pendaftaran gagal",
+        message: msg,
+        buttonText: "OKE",
+      });
       return;
     }
     if (!formData.password) {
-      setLocalError("Password wajib diisi.");
+      const msg = "Password wajib diisi.";
+      setLocalError(msg);
+      showAlert({
+        type: "error",
+        title: "Pendaftaran gagal",
+        message: msg,
+        buttonText: "OKE",
+      });
       return;
     }
     if (formData.password.length < 6) {
-      setLocalError("Password minimal 6 karakter.");
+      const msg = "Password minimal 6 karakter.";
+      setLocalError(msg);
+      showAlert({
+        type: "error",
+        title: "Pendaftaran gagal",
+        message: msg,
+        buttonText: "OKE",
+      });
       return;
     }
     if (formData.password !== formData.confirmPassword) {
-      setLocalError("Konfirmasi password tidak cocok dengan password.");
+      const msg = "Konfirmasi password tidak cocok dengan password.";
+      setLocalError(msg);
+      showAlert({
+        type: "error",
+        title: "Pendaftaran gagal",
+        message: msg,
+        buttonText: "OKE",
+      });
       return;
     }
 
@@ -147,14 +211,26 @@ export default function RegisterCabang() {
         confirmPassword: formData.confirmPassword,
       });
 
-      setSuccess(
-        "Pendaftaran tim cabang berhasil diajukan! Akun Anda sedang menunggu proses verifikasi oleh Admin. Mengalihkan ke halaman login..."
-      );
-      setTimeout(() => {
-        navigate("/login");
-      }, 2500);
-    } catch {
-      // Error ditangani oleh useAuthStore
+      showAlert({
+        type: "waiting",
+        title: "Menunggu Verifikasi",
+        message: "Admin sedang meninjau registrasi tim anda",
+        buttonText: "OKE",
+        onConfirm: () => {
+          navigate("/login");
+        },
+      });
+    } catch (err) {
+      const errMsg =
+        err.response?.data?.error ||
+        err.message ||
+        "Gagal mengajukan pendaftaran tim cabang.";
+      showAlert({
+        type: "error",
+        title: "Pendaftaran gagal",
+        message: errMsg,
+        buttonText: "OKE",
+      });
     }
   };
 
@@ -215,8 +291,8 @@ export default function RegisterCabang() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0082c8] flex items-center justify-center p-4 sm:p-8 lg:p-12 antialiased">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 sm:p-10 border border-gray-100">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4 sm:p-8 lg:p-12 antialiased">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full p-6 sm:p-10 border border-gray-200">
         <div className="mb-6">
           <h2 className="text-2xl sm:text-3xl font-black text-black tracking-tight">
             Formulir Pendaftaran Tim Cabang

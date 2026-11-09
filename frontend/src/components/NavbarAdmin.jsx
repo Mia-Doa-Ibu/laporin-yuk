@@ -1,26 +1,36 @@
 import { Link, useNavigate } from "react-router-dom";
-import { FaSearch, FaBell, FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { FaSearch, FaRegBell, FaUser, FaSignOutAlt } from "react-icons/fa";
 import { useAuthStore } from "../stores/useAuthStore";
+import { useAdminStore } from "../stores/useAdminStore";
 
 export default function NavbarAdmin({ searchTerm, setSearchTerm }) {
   const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
+  const { logout } = useAuthStore();
+  const { adminReports } = useAdminStore();
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
 
+  const pendingCount =
+    adminReports?.filter((r) => r.status === "pending")?.length || 0;
+
   return (
     <header className="w-full border-b border-gray-200 bg-white sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 py-3.5 flex items-center justify-between gap-6">
-        <Link to="/" className="text-xl font-black tracking-tight text-black flex-shrink-0">
+      <div className="w-full px-6 sm:px-8 py-3.5 flex items-center justify-between gap-4">
+        
+        <Link
+          to="/"
+          className="text-xl sm:text-2xl font-black italic tracking-wide text-black flex-shrink-0"
+        >
           LAPORIN YUK!
         </Link>
 
-        <div className="flex-1 max-w-lg">
+        
+        <div className="flex-1 max-w-xl mx-2 sm:mx-6">
           <div className="relative flex items-center">
-            <FaSearch className="absolute left-3.5 text-gray-400 text-xs" />
+            <FaSearch className="absolute left-3.5 text-gray-500 text-xs pointer-events-none" />
             <input
               type="text"
               value={searchTerm}
@@ -31,19 +41,28 @@ export default function NavbarAdmin({ searchTerm, setSearchTerm }) {
           </div>
         </div>
 
-        <div className="flex items-center space-x-4 flex-shrink-0">
-          <div className="relative cursor-pointer">
-            <FaBell className="w-5 h-5 text-black hover:text-gray-700 transition-colors" />
-            <span className="absolute -top-1.5 -right-1.5 bg-[#b91c1c] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-              0
+        
+        <div className="flex items-center space-x-3 sm:space-x-4 flex-shrink-0">
+          
+          <div
+            className="relative cursor-pointer"
+            title={`${pendingCount} laporan menunggu verifikasi`}
+          >
+            <FaRegBell className="w-6 h-6 text-black hover:text-gray-700 transition-colors" />
+            <span className="absolute -top-1 -right-1 bg-[#b91c1c] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+              {pendingCount}
             </span>
           </div>
 
-          <div className="flex items-center space-x-2 text-xs font-semibold text-gray-700">
-            <FaUserCircle className="w-6 h-6 text-gray-500" />
-            <span className="hidden sm:inline">{user?.email || "Admin"}</span>
+          
+          <div
+            className="w-8 h-8 rounded-full bg-[#a39e9e] flex items-center justify-center overflow-hidden flex-shrink-0 shadow-sm cursor-pointer"
+            title="Profil Admin"
+          >
+            <FaUser className="text-white w-4 h-4 mt-0.5" />
           </div>
 
+          
           <button
             type="button"
             onClick={handleLogout}

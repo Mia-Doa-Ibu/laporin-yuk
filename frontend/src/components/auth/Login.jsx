@@ -9,6 +9,7 @@ import {
   FaInfoCircle,
 } from "react-icons/fa";
 import { useAuthStore } from "../../stores/useAuthStore";
+import { useAlertStore } from "../../stores/useAlertStore";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ export default function Login() {
   const from = location.state?.from?.pathname;
 
   const { login, isLoading, error, clearError } = useAuthStore();
+  const { showAlert } = useAlertStore();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -40,6 +42,12 @@ export default function Login() {
 
     if (!formData.email || !formData.password) {
       setLocalError("Email dan password wajib diisi.");
+      showAlert({
+        type: "error",
+        title: "Login gagal",
+        message: "Email dan password wajib diisi.",
+        buttonText: "OKE",
+      });
       return;
     }
 
@@ -51,25 +59,38 @@ export default function Login() {
 
       const actualRole = data.user?.user_metadata?.role;
 
-      // Jika sebelumnya diarahkan dari protected route (misal /laporan atau /status),
-      // arahkan langsung kembali ke halaman yang diinginkan user
-      if (from) {
-        navigate(from, { replace: true });
-        return;
-      }
-
-      // Arahkan ke dashboard sesuai role pengguna
-      if (actualRole === "admin") {
-        navigate("/admin/verifikasi", { replace: true });
-      } else if (actualRole === "team_branch") {
-        navigate("/cabang", { replace: true });
-      } else if (actualRole === "pelapor") {
-        navigate("/laporan", { replace: true });
-      } else {
-        navigate("/", { replace: true });
-      }
-    } catch {
-      // Error sudah ditangani di useAuthStore
+      showAlert({
+        type: "success",
+        title: "Login berhasil",
+        message: "Anda berhasil login",
+        buttonText: "OKE",
+        onConfirm: () => {
+          if (actualRole === "admin") {
+            navigate("/admin/verifikasi", { replace: true });
+          } else if (actualRole === "team_branch") {
+            navigate("/cabang", { replace: true });
+          } else if (actualRole === "pelapor") {
+            if (from && (from === "/laporan" || from === "/status")) {
+              navigate(from, { replace: true });
+            } else {
+              navigate("/laporan", { replace: true });
+            }
+          } else {
+            navigate("/", { replace: true });
+          }
+        },
+      });
+    } catch (err) {
+      const errMsg =
+        err.response?.data?.error ||
+        err.message ||
+        "Email atau password yang anda masukan salah";
+      showAlert({
+        type: "error",
+        title: "Login gagal",
+        message: errMsg,
+        buttonText: "OKE",
+      });
     }
   };
 

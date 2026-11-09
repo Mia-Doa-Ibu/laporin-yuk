@@ -1,5 +1,9 @@
 export const requireRole = (allowedRoles) => {
   return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Token autentikasi tidak ditemukan atau tidak valid' })
+    }
+
     const userRole = req.user.user_metadata?.role || req.user.app_metadata?.role
 
     if (!allowedRoles.includes(userRole)) {

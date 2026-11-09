@@ -32,7 +32,6 @@ export default function AdminDataTimPage() {
     fetchAnggota();
   }, [fetchTeams, fetchKecamatan, fetchAnggota]);
 
-  // Inisialisasi data edit saat teamsList berubah
   useEffect(() => {
     const initialForms = {};
     teamsList.forEach((team) => {
@@ -67,7 +66,6 @@ export default function AdminDataTimPage() {
         id_kecamatan: current.id_kecamatan || undefined,
       });
     } catch {
-      // Error ditangani store
     }
   };
 
@@ -76,7 +74,6 @@ export default function AdminDataTimPage() {
       try {
         await deleteTeam(teamId);
       } catch {
-        // Error ditangani store
       }
     }
   };
@@ -205,7 +202,7 @@ export default function AdminDataTimPage() {
                       </div>
                     </div>
 
-                    {/* Tabel Anggota Tim */}
+                    
                     <div className="space-y-4">
                       <div className="grid grid-cols-12 gap-3 sm:gap-4 pb-2 border-b border-gray-300 text-xs sm:text-sm font-bold text-black">
                         <div className="col-span-4">Anggota Tim</div>

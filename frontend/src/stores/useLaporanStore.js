@@ -17,7 +17,6 @@ export const useLaporanStore = create((set, get) => ({
   error: null,
   successMessage: null,
 
-  // Action: Mengambil data laporan milik user yang login
   fetchMyReports: async (params = {}) => {
     set({ isLoading: true, error: null });
     try {
@@ -42,20 +41,17 @@ export const useLaporanStore = create((set, get) => ({
     }
   },
 
-  // Action: Mengambil daftar tim cabang aktif untuk opsi pengiriman laporan
   fetchTeamBranches: async () => {
     try {
       const res = await laporanService.getTeamBranches();
       set({ teamBranches: res.data || [] });
       return res.data;
     } catch (err) {
-      // Jangan timpa error global jika hanya dropdown pendukung
       console.warn("Gagal memuat tim cabang:", err.message);
       return [];
     }
   },
 
-  // Action: Mengirim laporan baru
   createReport: async (reportData) => {
     set({ isSubmitting: true, error: null, successMessage: null });
     try {
@@ -74,7 +70,6 @@ export const useLaporanStore = create((set, get) => ({
     }
   },
 
-  // Action: Clear Error & Success message
   clearError: () => set({ error: null }),
   clearSuccess: () => set({ successMessage: null }),
 }));

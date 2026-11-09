@@ -30,18 +30,44 @@ export default function Navbar() {
           >
             BERANDA
           </Link>
-          <Link
-            to="/laporan"
-            className="text-sm font-semibold tracking-wide text-black hover:text-sky-600 transition-colors"
-          >
-            LAPORAN
-          </Link>
-          <Link
-            to="/status"
-            className="text-sm font-semibold tracking-wide text-black hover:text-sky-600 transition-colors"
-          >
-            STATUS
-          </Link>
+
+          
+          {(!isAuthenticated || role === "pelapor") && (
+            <>
+              <Link
+                to="/laporan"
+                className="text-sm font-semibold tracking-wide text-black hover:text-sky-600 transition-colors"
+              >
+                LAPORAN
+              </Link>
+              <Link
+                to="/status"
+                className="text-sm font-semibold tracking-wide text-black hover:text-sky-600 transition-colors"
+              >
+                STATUS
+              </Link>
+            </>
+          )}
+
+          
+          {isAuthenticated && role === "admin" && (
+            <Link
+              to="/admin/verifikasi"
+              className="text-sm font-semibold tracking-wide text-[#0082c8] hover:underline transition-colors"
+            >
+              PANEL ADMIN
+            </Link>
+          )}
+
+          
+          {isAuthenticated && role === "team_branch" && (
+            <Link
+              to="/cabang"
+              className="text-sm font-semibold tracking-wide text-[#0082c8] hover:underline transition-colors"
+            >
+              PANEL CABANG
+            </Link>
+          )}
 
           {isAuthenticated ? (
             <div className="flex items-center space-x-3">

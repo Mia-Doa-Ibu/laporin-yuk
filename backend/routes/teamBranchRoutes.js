@@ -12,10 +12,12 @@ import { requireRole } from '../middlewares/roleMiddleware.js'
 
 const router = express.Router()
 
-// router.use(requireAuth)
-
 router.get('/', getAllTeamBranch)
 router.get('/:id', getTeamBranchById)
+
+// Route di bawah ini membutuhkan autentikasi
+router.use(requireAuth)
+
 router.put('/:id', requireRole(['team_branch', 'admin']), updateTeamBranch)
 router.patch('/:id/verify', requireRole(['admin']), verifyTeamBranch) 
 router.delete('/:id', requireRole(['admin']), deleteTeamBranch)

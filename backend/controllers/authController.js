@@ -45,13 +45,17 @@ export const register = async (req, res) => {
       nama_lengkap: profileData.nama_lengkap
     }])
   } else if (role === 'team_branch') {
-    await supabaseAdmin.from('team_branch').insert([{
+    const { error: teamError } = await supabaseAdmin.from('team_branch').insert([{
       user_id: userId,
       nama_tim: profileData.nama_tim,
       id_kecamatan: profileData.id_kecamatan,
-      nomor_ketua:profileData.nomor_ketua,
+      nomor_ketua: profileData.nomor_ketua,
       is_verified: false
     }])
+
+    if (teamError) {
+      return res.status(500).json({ error: 'Gagal menyimpan ke tabel team_branch: ' + teamError.message })
+    }
   }
 
   return res.status(201).json({
@@ -61,32 +65,24 @@ export const register = async (req, res) => {
 }
 
 export const login = async (req, res) => {
-  
   const { email, password } = req.body
-
-  // if (!ALLOWED_ROLES.includes(role)) {
-  //   return res.status(400).json({ error: 'Role login tidak valid atau belum disertakan di JSON.' })
-  // }
 
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
   if (error) return res.status(401).json({ error: 'Email atau password salah.' })
 
-  // const userRole = data.user.user_metadata?.role
-  // if (userRole !== role) {
-  //   return res.status(403).json({ error: `Akses ditolak. Akun ini bukan ber-role ${role}.` })
-  // }
+  const userRole = data.user.user_metadata?.role
 
-  // if (role === 'team_branch') {
-  //   const { data: teamData } = await supabaseAdmin
-  //     .from('team_branch')
-  //     .select('is_verified')
-  //     .eq('user_id', data.user.id)
-  //     .single()
+  if (userRole === 'team_branch') {
+    const { data: teamData } = await supabaseAdmin
+      .from('team_branch')
+      .select('is_verified')
+      .eq('user_id', data.user.id)
+      .single()
 
-  //   if (teamData && !teamData.is_verified) {
-  //     return res.status(403).json({ error: 'Akun Team Branch Anda belum diverifikasi oleh Admin.' })
-  //   }
-  // }
+    if (teamData && !teamData.is_verified) {
+      return res.status(403).json({ error: 'Akun Team Branch Anda belum diverifikasi oleh Admin.' })
+    }
+  }
 
   return res.json({
     message: `Login  berhasil.`,

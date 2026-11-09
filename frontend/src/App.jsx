@@ -12,22 +12,23 @@ import Login from "./components/auth/Login";
 import RegisterPelapor from "./components/auth/RegisterPelapor";
 import RegisterCabang from "./components/auth/RegisterCabang";
 
-// Middleware Routes
 import ProtectedRoute from "./middlewares/ProtectedRoute";
 import GuestRoute from "./middlewares/GuestRoute";
+import AlertModal from "./components/AlertModal";
 
 export default function App() {
   return (
     <BrowserRouter>
+      <AlertModal />
       <Routes>
-        {/* Halaman Beranda Publik */}
+        
         <Route path="/" element={<LandingPage />} />
 
-        {/* Halaman yang Dilindungi Middleware Autentikasi (Pelapor & Umum) */}
+        
         <Route
           path="/laporan"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["pelapor"]}>
               <LaporanPage />
             </ProtectedRoute>
           }
@@ -35,13 +36,13 @@ export default function App() {
         <Route
           path="/status"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["pelapor"]}>
               <StatusPage />
             </ProtectedRoute>
           }
         />
 
-        {/* Halaman Khusus Tim Cabang (dan Admin) */}
+        
         <Route
           path="/cabang"
           element={
@@ -51,7 +52,7 @@ export default function App() {
           }
         />
 
-        {/* Halaman Khusus Admin Pusat */}
+        
         <Route
           path="/admin/verifikasi"
           element={
@@ -93,7 +94,7 @@ export default function App() {
           }
         />
 
-        {/* Halaman Tamu / Guest (Hanya bisa diakses jika BELUM login) */}
+        
         <Route
           path="/login"
           element={
@@ -123,7 +124,7 @@ export default function App() {
           }
         />
 
-        {/* Fallback route jika URL tidak ditemukan */}
+        
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

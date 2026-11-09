@@ -16,21 +16,17 @@ import Footer from "../components/Footer";
 import { useAdminStore } from "../stores/useAdminStore";
 
 export default function AdminLaporanPage() {
-  const { statusFilter } = useParams(); // 'menunggu', 'valid', 'ditolak', atau undefined
+  const { statusFilter } = useParams();
   const [searchTerm, setSearchTerm] = useState("");
 
   const {
     adminReports,
     fetchAdminReports,
-    updateReportStatus,
-    deleteReport,
     isLoading,
-    isSubmitting,
     error,
     successMessage,
   } = useAdminStore();
 
-  // Mapping status param ke status di backend
   const getBackendStatus = () => {
     if (statusFilter === "menunggu") return "pending";
     if (statusFilter === "valid") return "valid";
@@ -42,24 +38,6 @@ export default function AdminLaporanPage() {
     const status = getBackendStatus();
     fetchAdminReports(status ? { status } : {});
   }, [statusFilter, fetchAdminReports]);
-
-  const handleUpdateStatus = async (id, newStatus) => {
-    try {
-      await updateReportStatus(id, newStatus);
-    } catch {
-      // Error ditangani store
-    }
-  };
-
-  const handleDelete = async (id, title) => {
-    if (window.confirm(`Apakah Anda yakin ingin menghapus laporan "${title}"?`)) {
-      try {
-        await deleteReport(id);
-      } catch {
-        // Error ditangani store
-      }
-    }
-  };
 
   const getActiveMenuName = () => {
     if (statusFilter === "menunggu") return "menunggu";
@@ -123,7 +101,7 @@ export default function AdminLaporanPage() {
                 {getPageTitle()}
               </h1>
               <p className="text-xs sm:text-sm text-gray-700 font-medium mt-1">
-                Kelola status validitas pengaduan warga untuk diteruskan ke tim lapangan
+                Pantau dan lihat data pengaduan dari seluruh masyarakat
               </p>
             </div>
 
@@ -159,7 +137,7 @@ export default function AdminLaporanPage() {
                   className="border border-gray-300 rounded-xl p-6 bg-white shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    {/* Foto Bukti */}
+                    
                     <div className="lg:col-span-4 bg-[#e5e7eb] h-56 sm:h-64 rounded-lg w-full overflow-hidden flex items-center justify-center border border-gray-200">
                       {report.foto_url ? (
                         <img
@@ -175,7 +153,7 @@ export default function AdminLaporanPage() {
                       )}
                     </div>
 
-                    {/* Informasi Laporan & Aksi Admin */}
+                    
                     <div className="lg:col-span-8 space-y-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <h3 className="text-xl sm:text-2xl font-black text-black uppercase tracking-wide">
@@ -216,56 +194,6 @@ export default function AdminLaporanPage() {
                         </p>
                         <div className="bg-[#f9fafb] border border-gray-200 p-4 rounded-lg text-xs sm:text-sm text-gray-800 leading-relaxed whitespace-pre-line">
                           {report.deskripsi}
-                        </div>
-                      </div>
-
-                      {/* Tombol Aksi Status Admin */}
-                      <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-gray-100 mt-4">
-                        <button
-                          type="button"
-                          disabled={isSubmitting}
-                          onClick={() => handleDelete(report.id, report.title)}
-                          className="text-xs text-red-600 hover:text-red-800 font-semibold cursor-pointer"
-                        >
-                          Hapus Laporan
-                        </button>
-
-                        <div className="flex items-center gap-2">
-                          {report.status !== "valid" && (
-                            <button
-                              type="button"
-                              disabled={isSubmitting}
-                              onClick={() => handleUpdateStatus(report.id, "valid")}
-                              className="inline-flex items-center gap-1.5 bg-[#059669] hover:bg-[#047857] disabled:opacity-50 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all active:scale-[0.98] cursor-pointer"
-                            >
-                              <FaCheck />
-                              <span>Tandai Valid</span>
-                            </button>
-                          )}
-
-                          {report.status !== "invalid" && (
-                            <button
-                              type="button"
-                              disabled={isSubmitting}
-                              onClick={() => handleUpdateStatus(report.id, "invalid")}
-                              className="inline-flex items-center gap-1.5 bg-[#b91c1c] hover:bg-[#991b1b] disabled:opacity-50 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-all active:scale-[0.98] cursor-pointer"
-                            >
-                              <FaTimes />
-                              <span>Tolak (Invalid)</span>
-                            </button>
-                          )}
-
-                          {report.status !== "pending" && (
-                            <button
-                              type="button"
-                              disabled={isSubmitting}
-                              onClick={() => handleUpdateStatus(report.id, "pending")}
-                              className="inline-flex items-center gap-1.5 bg-gray-600 hover:bg-gray-700 disabled:opacity-50 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-all active:scale-[0.98] cursor-pointer"
-                            >
-                              <FaClock />
-                              <span>Pending</span>
-                            </button>
-                          )}
                         </div>
                       </div>
                     </div>

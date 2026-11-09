@@ -1,7 +1,6 @@
 import api from "./api";
 
 const adminService = {
-  // === 1. KELOLA WILAYAH (KECAMATAN) ===
   getAllKecamatan: async (params = {}) => {
     const response = await api.get("/kecamatan", { params });
     return response.data;
@@ -30,7 +29,6 @@ const adminService = {
     return response.data;
   },
 
-  // === 2. VERIFIKASI & DATA TIM CABANG ===
   getAllTeamBranch: async (params = {}) => {
     const response = await api.get("/team-branch", { params });
     return response.data;
@@ -61,7 +59,6 @@ const adminService = {
     return response.data;
   },
 
-  // === 3. KELOLA ANGGOTA TIM ===
   getAllAnggota: async (params = {}) => {
     const response = await api.get("/anggota", { params });
     return response.data;
@@ -89,7 +86,6 @@ const adminService = {
     return response.data;
   },
 
-  // === 4. KELOLA ANTREAN LAPORAN (ROLE ADMIN) ===
   getAllLaporan: async (params = {}) => {
     const response = await api.get("/laporan", { params });
     return response.data;

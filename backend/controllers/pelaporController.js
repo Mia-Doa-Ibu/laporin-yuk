@@ -83,7 +83,7 @@ export const updatePelapor = async (req, res) => {
 
     const { data, error } = await supabaseAdmin
       .from('pelapor')
-      .update({ nama_lengkap, updated_at: new Date() })
+      .update({ nama_lengkap })
       .eq('id', id)
       .select()
 

@@ -10,11 +10,13 @@ import {
   FaCheckCircle,
 } from "react-icons/fa";
 import { useAuthStore } from "../../stores/useAuthStore";
+import { useAlertStore } from "../../stores/useAlertStore";
 
 export default function RegisterPelapor() {
   const navigate = useNavigate();
   const { registerPelapor, registerAdmin, isLoading, error, clearError } =
     useAuthStore();
+  const { showAlert } = useAlertStore();
 
   const [role, setRole] = useState("pelapor");
   const [formData, setFormData] = useState({
@@ -27,12 +29,7 @@ export default function RegisterPelapor() {
   const [success, setSuccess] = useState("");
 
   const handleRoleChange = (e) => {
-    const selectedRole = e.target.value;
-    if (selectedRole === "team_branch") {
-      navigate("/register-cabang");
-      return;
-    }
-    setRole(selectedRole);
+    setRole(e.target.value);
     if (localError) setLocalError("");
     if (error) clearError();
   };
@@ -52,23 +49,80 @@ export default function RegisterPelapor() {
     setSuccess("");
     clearError();
 
+    if (role === "team_branch") {
+      if (!formData.name.trim()) {
+        setLocalError("Nama tim cabang wajib diisi.");
+        return;
+      }
+      if (!formData.email.trim() || !formData.password || !formData.confirmPassword) {
+        setLocalError("Email dan password wajib diisi.");
+        return;
+      }
+      if (formData.password.length < 6) {
+        setLocalError("Password minimal terdiri dari 6 karakter.");
+        return;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setLocalError("Konfirmasi password tidak cocok dengan password.");
+        return;
+      }
+
+      navigate("/register-cabang", {
+        state: {
+          namaTim: formData.name.trim(),
+          email: formData.email.trim(),
+          password: formData.password,
+          confirmPassword: formData.confirmPassword,
+        },
+      });
+      return;
+    }
+
     if (role === "pelapor" && !formData.name.trim()) {
-      setLocalError("Nama lengkap wajib diisi.");
+      const msg = "Nama lengkap wajib diisi.";
+      setLocalError(msg);
+      showAlert({
+        type: "error",
+        title: "Registrasi gagal",
+        message: msg,
+        buttonText: "OKE",
+      });
       return;
     }
 
     if (!formData.email.trim() || !formData.password || !formData.confirmPassword) {
-      setLocalError("Email dan password wajib diisi.");
+      const msg = "Email dan password wajib diisi.";
+      setLocalError(msg);
+      showAlert({
+        type: "error",
+        title: "Registrasi gagal",
+        message: msg,
+        buttonText: "OKE",
+      });
       return;
     }
 
     if (formData.password.length < 6) {
-      setLocalError("Password minimal terdiri dari 6 karakter.");
+      const msg = "Password minimal terdiri dari 6 karakter.";
+      setLocalError(msg);
+      showAlert({
+        type: "error",
+        title: "Registrasi gagal",
+        message: msg,
+        buttonText: "OKE",
+      });
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setLocalError("Konfirmasi password tidak cocok dengan password.");
+      const msg = "Konfirmasi password tidak cocok dengan password.";
+      setLocalError(msg);
+      showAlert({
+        type: "error",
+        title: "Registrasi gagal",
+        message: msg,
+        buttonText: "OKE",
+      });
       return;
     }
 
@@ -83,16 +137,26 @@ export default function RegisterPelapor() {
         });
       }
 
-      setSuccess(
-        `Registrasi ${
-          role === "admin" ? "Admin" : "Pelapor"
-        } berhasil! Mengalihkan ke halaman login...`
-      );
-      setTimeout(() => {
-        navigate("/login");
-      }, 1500);
-    } catch {
-      // Error ditangani oleh useAuthStore
+      showAlert({
+        type: "success",
+        title: "Registrasi berhasil",
+        message: "Akun berhasil dibuat",
+        buttonText: "OKE",
+        onConfirm: () => {
+          navigate("/login");
+        },
+      });
+    } catch (err) {
+      const errMsg =
+        err.response?.data?.error ||
+        err.message ||
+        "Terjadi kesalahan saat registrasi.";
+      showAlert({
+        type: "error",
+        title: "Registrasi gagal",
+        message: errMsg,
+        buttonText: "OKE",
+      });
     }
   };
 
@@ -136,17 +200,17 @@ export default function RegisterPelapor() {
               className="bg-transparent w-full text-sm font-medium text-gray-800 outline-none appearance-none cursor-pointer pr-6"
             >
               <option value="pelapor">Pelapor / Masyarakat</option>
+              <option value="team_branch">Tim Cabang</option>
               <option value="admin">Admin Pusat</option>
-              <option value="team_branch">Tim Cabang (Formulir Khusus)</option>
             </select>
             <FaChevronDown className="absolute right-4 text-gray-600 pointer-events-none text-xs" />
           </div>
         </div>
 
-        {role === "pelapor" && (
+        {role !== "admin" && (
           <div>
             <label className="block text-white font-bold text-sm mb-1.5">
-              Nama Lengkap :
+              {role === "team_branch" ? "Nama Tim Cabang :" : "Nama Lengkap :"}
             </label>
             <div className="flex items-center bg-[#cfd3d8] rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-[#0082c8] transition-all">
               <FaUser className="text-gray-600 mr-3 text-base flex-shrink-0" />
@@ -155,7 +219,11 @@ export default function RegisterPelapor() {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Nama lengkap anda"
+                placeholder={
+                  role === "team_branch"
+                    ? "Contoh : Tim Cabang A"
+                    : "Nama lengkap anda"
+                }
                 className="bg-transparent w-full text-sm font-medium text-gray-800 placeholder-gray-500 outline-none"
                 required
               />
@@ -165,7 +233,7 @@ export default function RegisterPelapor() {
 
         <div>
           <label className="block text-white font-bold text-sm mb-1.5">
-            Email :
+            Email {role === "team_branch" ? "Akun Tim :" : ":"}
           </label>
           <div className="flex items-center bg-[#cfd3d8] rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-[#0082c8] transition-all">
             <FaEnvelope className="text-gray-600 mr-3 text-base flex-shrink-0" />
@@ -223,9 +291,7 @@ export default function RegisterPelapor() {
             disabled={isLoading || !!success}
             className="w-full bg-[#0082c8] hover:bg-[#0274b3] disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-2xl shadow-md transition-all active:scale-[0.99] cursor-pointer"
           >
-            {isLoading
-              ? "Mendaftarkan..."
-              : `Buat Akun ${role === "admin" ? "Admin" : "Pelapor"}`}
+            {isLoading ? "Memproses..." : "Buat Akun"}
           </button>
         </div>
       </form>
@@ -239,16 +305,6 @@ export default function RegisterPelapor() {
             className="text-[#0082c8] font-semibold hover:underline cursor-pointer"
           >
             Masuk disini
-          </button>
-        </p>
-        <p>
-          Mendaftar sebagai perwakilan cabang?{" "}
-          <button
-            type="button"
-            onClick={() => navigate("/register-cabang")}
-            className="text-[#0082c8] font-semibold hover:underline cursor-pointer"
-          >
-            Daftar Tim Cabang
           </button>
         </p>
       </div>

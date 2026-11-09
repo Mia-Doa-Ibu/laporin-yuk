@@ -13,7 +13,6 @@ export const useAuthStore = create(
       error: null,
       successMessage: null,
 
-      // Action: Login
       login: async ({ email, password }) => {
         set({ isLoading: true, error: null, successMessage: null });
         try {
@@ -43,7 +42,6 @@ export const useAuthStore = create(
         }
       },
 
-      // Action: Register Generik (Mendukung semua role)
       register: async (payload) => {
         set({ isLoading: true, error: null, successMessage: null });
         try {
@@ -63,7 +61,6 @@ export const useAuthStore = create(
         }
       },
 
-      // Action: Register Pelapor
       registerPelapor: async (formData) => {
         set({ isLoading: true, error: null, successMessage: null });
         try {
@@ -82,7 +79,6 @@ export const useAuthStore = create(
         }
       },
 
-      // Action: Register Tim Cabang
       registerTeamBranch: async (formData) => {
         set({ isLoading: true, error: null, successMessage: null });
         try {
@@ -103,7 +99,6 @@ export const useAuthStore = create(
         }
       },
 
-      // Action: Register Admin
       registerAdmin: async (formData) => {
         set({ isLoading: true, error: null, successMessage: null });
         try {
@@ -123,7 +118,6 @@ export const useAuthStore = create(
         }
       },
 
-      // Action: Logout
       logout: () => {
         localStorage.removeItem("token");
         set({
@@ -136,7 +130,6 @@ export const useAuthStore = create(
         });
       },
 
-      // Action: Clear Error & Message
       clearError: () => set({ error: null }),
       clearSuccessMessage: () => set({ successMessage: null }),
     }),

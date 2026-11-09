@@ -209,7 +209,7 @@ export const updateStatusLaporan = async (req, res) => {
 
     const { data, error } = await supabaseAdmin
       .from('laporan')
-      .update({ status, updated_at: new Date() })
+      .update({ status })
       .eq('id', id)
       .select()
 

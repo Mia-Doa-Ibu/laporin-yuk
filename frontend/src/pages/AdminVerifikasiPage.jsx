@@ -3,6 +3,7 @@ import NavbarAdmin from "../components/NavbarAdmin";
 import SidebarAdmin from "../components/SidebarAdmin";
 import Footer from "../components/Footer";
 import { useAdminStore } from "../stores/useAdminStore";
+import { useAlertStore } from "../stores/useAlertStore";
 import {
   FaCheck,
   FaTimes,
@@ -33,11 +34,9 @@ export default function AdminVerifikasiPage() {
     fetchTeams();
   }, [fetchTeams]);
 
-  // Filter tim yang belum diverifikasi
   const pendingTeams = teamsList.filter((team) => !team.is_verified);
   const verifiedTeams = teamsList.filter((team) => team.is_verified);
 
-  // Otomatis pilih tim pertama dari antrean jika belum ada yang dipilih
   useEffect(() => {
     if (pendingTeams.length > 0 && !selectedTeamId) {
       setSelectedTeamId(pendingTeams[0].id);
@@ -46,7 +45,6 @@ export default function AdminVerifikasiPage() {
     }
   }, [pendingTeams, verifiedTeams, selectedTeamId]);
 
-  // Ambil data anggota dari tim yang dipilih
   useEffect(() => {
     if (selectedTeamId) {
       fetchAnggota({ id_team_branch: selectedTeamId });
@@ -60,12 +58,25 @@ export default function AdminVerifikasiPage() {
       m.team_branch?.id === selectedTeamId
   );
 
+  const { showAlert } = useAlertStore();
+
   const handleVerify = async (id) => {
     try {
       await verifyTeam(id, true);
       setSelectedTeamId(null);
-    } catch {
-      // Error ditangani store
+      showAlert({
+        type: "success",
+        title: "Verifikasi Berhasil",
+        message: "Akun tim cabang berhasil diverifikasi dan sekarang dapat login.",
+        buttonText: "OKE",
+      });
+    } catch (err) {
+      showAlert({
+        type: "error",
+        title: "Verifikasi Gagal",
+        message: err.response?.data?.error || err.message || "Gagal memverifikasi akun tim cabang.",
+        buttonText: "OKE",
+      });
     }
   };
 
@@ -78,8 +89,19 @@ export default function AdminVerifikasiPage() {
       try {
         await deleteTeam(id);
         setSelectedTeamId(null);
-      } catch {
-        // Error ditangani store
+        showAlert({
+          type: "success",
+          title: "Pendaftaran Ditolak",
+          message: `Pendaftaran tim "${nama}" telah berhasil ditolak dan dihapus.`,
+          buttonText: "OKE",
+        });
+      } catch (err) {
+        showAlert({
+          type: "error",
+          title: "Gagal Menolak",
+          message: err.response?.data?.error || err.message || "Gagal menghapus pendaftaran.",
+          buttonText: "OKE",
+        });
       }
     }
   };
@@ -126,7 +148,7 @@ export default function AdminVerifikasiPage() {
 
             <hr className="border-gray-200 mb-6" />
 
-            {/* Pilihan Tim yang Mengajukan Pendaftaran */}
+            
             <div className="mb-6">
               <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
                 Pilih Antrean Pendaftar Tim :
@@ -204,7 +226,7 @@ export default function AdminVerifikasiPage() {
                   </div>
                 </div>
 
-                {/* Daftar Anggota Tim */}
+                
                 <div className="space-y-4 mb-8">
                   <div className="flex items-center justify-between pb-2 border-b border-gray-300 text-xs sm:text-sm font-bold text-black">
                     <div className="flex items-center gap-2">
@@ -255,7 +277,7 @@ export default function AdminVerifikasiPage() {
                   )}
                 </div>
 
-                {/* Tombol Aksi Verifikasi */}
+                
                 <div className="flex flex-wrap items-center justify-end gap-3 pt-4 border-t border-gray-200">
                   <button
                     type="button"

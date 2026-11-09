@@ -12,7 +12,6 @@ export const useAdminStore = create((set, get) => ({
   error: null,
   successMessage: null,
 
-  // === KECAMATAN ACTIONS ===
   fetchKecamatan: async (params = {}) => {
     set({ isLoading: true, error: null });
     try {
@@ -64,7 +63,6 @@ export const useAdminStore = create((set, get) => ({
     }
   },
 
-  // === TEAM BRANCH ACTIONS ===
   fetchTeams: async (params = {}) => {
     set({ isLoading: true, error: null });
     try {
@@ -119,7 +117,6 @@ export const useAdminStore = create((set, get) => ({
     }
   },
 
-  // === ANGGOTA ACTIONS ===
   fetchAnggota: async (params = {}) => {
     try {
       const res = await adminService.getAllAnggota(params);
@@ -131,7 +128,6 @@ export const useAdminStore = create((set, get) => ({
     }
   },
 
-  // === LAPORAN ACTIONS (ADMIN) ===
   fetchAdminReports: async (params = {}) => {
     set({ isLoading: true, error: null });
     try {
@@ -152,7 +148,6 @@ export const useAdminStore = create((set, get) => ({
     set({ isSubmitting: true, error: null });
     try {
       const res = await adminService.updateStatusLaporan(id, status);
-      // Update local state
       set((state) => ({
         adminReports: state.adminReports.map((r) =>
           r.id === id ? { ...r, status } : r
