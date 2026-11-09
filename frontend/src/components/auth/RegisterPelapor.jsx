@@ -14,8 +14,7 @@ import { useAlertStore } from "../../stores/useAlertStore";
 
 export default function RegisterPelapor() {
   const navigate = useNavigate();
-  const { registerPelapor, registerAdmin, isLoading, error, clearError } =
-    useAuthStore();
+  const { registerPelapor, isLoading, error, clearError } = useAuthStore();
   const { showAlert } = useAlertStore();
 
   const [role, setRole] = useState("pelapor");
@@ -127,15 +126,7 @@ export default function RegisterPelapor() {
     }
 
     try {
-      if (role === "pelapor") {
-        await registerPelapor(formData);
-      } else if (role === "admin") {
-        await registerAdmin({
-          email: formData.email,
-          password: formData.password,
-          confirmPassword: formData.confirmPassword,
-        });
-      }
+      await registerPelapor(formData);
 
       showAlert({
         type: "success",
@@ -201,35 +192,32 @@ export default function RegisterPelapor() {
             >
               <option value="pelapor">Pelapor / Masyarakat</option>
               <option value="team_branch">Tim Cabang</option>
-              <option value="admin">Admin Pusat</option>
             </select>
             <FaChevronDown className="absolute right-4 text-gray-600 pointer-events-none text-xs" />
           </div>
         </div>
 
-        {role !== "admin" && (
-          <div>
-            <label className="block text-white font-bold text-sm mb-1.5">
-              {role === "team_branch" ? "Nama Tim Cabang :" : "Nama Lengkap :"}
-            </label>
-            <div className="flex items-center bg-[#cfd3d8] rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-[#0082c8] transition-all">
-              <FaUser className="text-gray-600 mr-3 text-base flex-shrink-0" />
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder={
-                  role === "team_branch"
-                    ? "Contoh : Tim Cabang A"
-                    : "Nama lengkap anda"
-                }
-                className="bg-transparent w-full text-sm font-medium text-gray-800 placeholder-gray-500 outline-none"
-                required
-              />
-            </div>
+        <div>
+          <label className="block text-white font-bold text-sm mb-1.5">
+            {role === "team_branch" ? "Nama Tim Cabang :" : "Nama Lengkap :"}
+          </label>
+          <div className="flex items-center bg-[#cfd3d8] rounded-xl px-4 py-3 focus-within:ring-2 focus-within:ring-[#0082c8] transition-all">
+            <FaUser className="text-gray-600 mr-3 text-base flex-shrink-0" />
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder={
+                role === "team_branch"
+                  ? "Contoh : Tim Cabang A"
+                  : "Nama lengkap anda"
+              }
+              className="bg-transparent w-full text-sm font-medium text-gray-800 placeholder-gray-500 outline-none"
+              required
+            />
           </div>
-        )}
+        </div>
 
         <div>
           <label className="block text-white font-bold text-sm mb-1.5">
