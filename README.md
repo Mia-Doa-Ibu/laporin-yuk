@@ -51,7 +51,7 @@ Sering kali aduan publik mengenai fasilitas umum yang rusak, isu lingkungan hidu
 ## 💻 Tech Stack
 
 | Lapisan | Teknologi | 
-| :--- | :--- | :--- |
+| :--- | :--- |
 | **Frontend Framework** | **React 19** | 
 | **Build Tool** | **Vite 8.3** | 
 | **Styling** | **Tailwind CSS v4** | 
