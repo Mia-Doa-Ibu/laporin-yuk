@@ -48,39 +48,21 @@ Sering kali aduan publik mengenai fasilitas umum yang rusak, isu lingkungan hidu
 
 ---
 
-## 🔄 Alur Kerja Sistem (System Workflow)
-
-```mermaid
-flowchart TD
-    A([Masyarakat / Pelapor]) -->|1. Unggah Laporan & Foto Bukti| B(Database Laporan)
-    B -->|2. Status: Menunggu Verifikasi| C[Antrean Laporan Tim Cabang]
-    C -->|3. Inspeksi Lapangan| D{Pemeriksaan Tim Cabang}
-    D -->|Catatan, Tim Bertugas & Bukti Lapangan| E[Simpan Hasil Verifikasi]
-    E -->|Valid / Ditindaklanjuti| F[Status: Laporan Valid]
-    D -->|Data Tidak Sesuai / Palsu| G[Status: Laporan Ditolak]
-    F --> H([Pelapor Menerima Hasil Update])
-    G --> H
-    I([Admin Pusat]) -->|Aktivasi & Supervisi| J[Verifikasi Akun Tim Cabang]
-    I -->|Pengawasan Global| B
-```
-
----
-
 ## 💻 Tech Stack
 
-| Lapisan | Teknologi | Deskripsi |
+| Lapisan | Teknologi | 
 | :--- | :--- | :--- |
-| **Frontend Framework** | **React 19** | Library UI modern dengan performa tinggi & compiler teroptimasi |
-| **Build Tool** | **Vite 8.3** | Bundler kilat untuk efisiensi pengembangan dan build aset produksi |
-| **Styling** | **Tailwind CSS v4** | Framework utilitas CSS terintegrasi untuk tampilan responsif |
-| **State Management** | **Zustand** | Manajemen state aplikasi yang ringan, bersih, dan modular |
-| **Routing** | **React Router v7** | Routing client-side terstruktur untuk navigasi antar halaman |
-| **Icons** | **Lucide React & React Icons** | Koleksi ikon vektor yang konsisten dan modern |
-| **HTTP Client** | **Axios** | Komunikasi data asinkronus ke REST API dengan interceptor |
-| **Backend Framework** | **Node.js & Express 5** | RESTful API backend dengan routing modular & middleware CORS |
-| **Database & Auth** | **Supabase (PostgreSQL)** | Penyimpanan data relasional aman dan terstruktur |
-| **Cloud Storage** | **Supabase Storage** | Bucket penyimpanan gambar & dokumen bukti pengaduan |
-| **Hosting & Deploy** | **Vercel** | Deployment serverless backend dan edge network delivery |
+| **Frontend Framework** | **React 19** | 
+| **Build Tool** | **Vite 8.3** | 
+| **Styling** | **Tailwind CSS v4** | 
+| **State Management** | **Zustand** | 
+| **Routing** | **React Router v7** |
+| **Icons** | **Lucide React & React Icons** |
+| **HTTP Client** | **Axios** |
+| **Backend Framework** | **Node.js & Express 5** |
+| **Database & Auth** | **Supabase (PostgreSQL)** | 
+| **Cloud Storage** | **Supabase Storage** | 
+| **Hosting & Deploy** | **Vercel** | 
 
 ---
 
@@ -216,22 +198,7 @@ cd laporin-yuk
 
 ---
 
-## 🎯 Nilai Tambah untuk Penilaian Mentor / Juri
-
-1. **Struktur Kode Bersih (*Clean Code & Modular Architecture*)**:
-   - Pemisahan tanggung jawab yang jelas antara Service Layer (komunikasi data), Store Layer (state management dengan Zustand), dan Presentation Layer (komponen React).
-   - Penanganan error terpusat melalui komponen [AlertModal](file:///d:/Materi%20Pembelajaran/project/laporin-yuk/frontend/src/components/AlertModal.jsx) yang konsisten.
-2. **Kesesuaian Desain & Pengalaman Pengguna (UI/UX)**:
-   - Tampilan bersih (*sleek & responsive*) dengan palet warna navy profesional.
-   - Feedback interaktif langsung saat aksi verifikasi, tolak laporan, atau pendaftaran akun.
-3. **Penyelesaian Masalah Nyata (*Real-World Impact*)**:
-   - Menghilangkan friksi aduan palsu dengan validasi lapangan berfoto dan penugasan tim resmi.
-   - Memastikan transparansi proses dari awal aduan masuk hingga verifikasi selesai.
-
----
-
 ## 📄 Lisensi & Kontributor
 
-Dikembangkan dengan dedikasi untuk kompetisi inovasi teknologi pelayanan publik oleh tim **Laporin Yuk!**.
+Dikembangkan untuk kompetisi inovasi teknologi pelayanan publik oleh tim Kekuatan Doa Ibu dengan Nama Aplikasi **Laporin Yuk!**.
 Semua hak cipta dilindungi undang-undang © 2026.
-
